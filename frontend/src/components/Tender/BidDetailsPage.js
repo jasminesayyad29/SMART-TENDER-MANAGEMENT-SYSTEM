@@ -24,19 +24,22 @@ const BidDetailsPage = () => {
       return;
     }
   
-    // Fetch tenders based on email
+    // Fetch bids based on email
     const getBids = async () => {
       try {
         const data = await fetchbidsbymail(email);
   
-        // Add status logic based on expiryDate (similar to AllBidDetails)
+        // Add status logic based on expiryDate
         const today = new Date();
         data.forEach((bid) => {
           const expiryDate = bid.expiryDate ? new Date(bid.expiryDate) : null;
           bid.status = expiryDate && expiryDate >= today ? 'Active' : 'Inactive';
         });
   
-        setBidDetails(data);
+        // Sort bids by createdAt (newest first)
+        const sortedBids = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  
+        setBidDetails(sortedBids);
       } catch (err) {
         setError(`No Bids found for email: ${email}`);
         console.error("Error fetching bids:", err);

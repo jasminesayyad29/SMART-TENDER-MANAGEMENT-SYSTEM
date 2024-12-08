@@ -15,7 +15,9 @@ const ViewTenderPage = () => {
     const getTenders = async () => {
       try {
         const data = await fetchTenders();
-        setTenders(data);
+        // Sort tenders by creation date (newest first)
+        const sortedTenders = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setTenders(sortedTenders);
       } catch (err) {
         setError(`Failed to fetch tenders: ${err.message || err}`);
         console.error(err);
@@ -25,6 +27,7 @@ const ViewTenderPage = () => {
     };
     getTenders();
   }, []);
+  
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
@@ -46,7 +49,11 @@ const ViewTenderPage = () => {
   };
 
   return (
-    <div className="view-tender-page-container">
+
+    <>
+
+<br/>
+<div className="view-tender-page-container">
       <div className="view-tender-page-header-container">
         <button onClick={() => navigate(-1)} className="view-tender-page-back-button">
           ← Back
@@ -66,7 +73,7 @@ const ViewTenderPage = () => {
               <h2 className="view-tender-page-id">
                 Tender ID: <span className="highlighted-text">{tender._id}</span>
               </h2>
-              <h3 className="view-tender-page-title">{tender.title}</h3>
+              <strong><h3 className="view-tender-page-title" >{tender.title}</h3></strong>
             </div>
           ))}
         </div>
@@ -187,6 +194,11 @@ const ViewTenderPage = () => {
         </div>
       )}
     </div>
+
+    <br/>
+    <br/>
+
+    </>
   );
 };
 

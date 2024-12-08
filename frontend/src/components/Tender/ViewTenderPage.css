@@ -1,9 +1,12 @@
 /* Main container */
 .view-tender-page-container {
-  padding: 15px;
-  font-family: Arial, sans-serif;
-  max-width: 1000px;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  max-width: 1200px;
   margin: 0 auto;
+  /* background-color: #000000; */
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Header container */
@@ -11,30 +14,32 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 /* Back button */
 .view-tender-page-back-button {
-  background-color: #f0f0f0;
-  border: 1px solid #ddd;
-  color: #333;
-  border-radius: 30px;
-  padding: 8px 15px;
-  font-size: 14px;
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  border-radius: 25px;
+  padding: 10px 18px;
+  font-size: 16px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 .view-tender-page-back-button:hover {
-  background-color: #ddd;
+  background-color: #45a049;
 }
 
 /* Page title */
-.view-tender-page-header {
-  font-size: 20px;
-  color: #ffffff;
+.Click-On-Tender-To-Bid {
   font-weight: bold;
-  text-align: center;
+  font-size: 28px;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-left: 293px !important;
   flex-grow: 1;
 }
 
@@ -42,36 +47,39 @@
 .view-tender-page-no-tender-message {
   text-align: center;
   color: #888;
-  font-size: 16px;
+  font-size: 18px;
+  font-style: italic;
 }
 
 /* Tender list container */
 .view-tender-page-list-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  padding-top: 20px;
 }
 
 /* Card style with gradient background */
-/* Card style with gradient background */
 .view-tender-page-card {
-  background: linear-gradient(135deg, #bd77dd, #d99b94f1); /* Gradient from orange to red */
-  border: 3px solid black; /* Add a border around the card */
-  border-radius: 50px;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-  padding: 15px;
+  /* background: linear-gradient(145deg, #6a5acd, #8a2be2); Updated gradient */
+  background-color: aliceblue;
+  border: 3px solid #e6e6e6;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  padding: 20px;
   cursor: pointer;
-  transition: box-shadow 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   text-align: center;
 }
 .view-tender-page-card:hover {
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
 /* Highlighted text for fetched data */
 .highlighted-text {
   font-weight: bold;
-  color: #333;
+  color: #050505;
 }
 
 /* Modal overlay */
@@ -103,7 +111,7 @@
   position: absolute;
   top: 10px;
   right: 10px;
-  background: #0056b3;
+  background: #007bff;
   color: white;
   border: none;
   border-radius: 50%;
@@ -137,6 +145,7 @@
 .view-tender-page-title {
   font-size: 20px;
   color: #000000;
+  font-weight: bold;
 }
 
 .view-tender-page-desc {
@@ -151,10 +160,10 @@
 /* Center-align the submit bid button */
 .view-tender-page-submit-bid-link {
   display: inline-block;
-  margin-top: 15px;
-  padding: 10px 20px;
+  margin-top: 20px;
+  padding: 12px 24px;
   background-color: #0056b3;
-  color: #fff;
+  color: white;
   border-radius: 30px;
   font-weight: bold;
   text-decoration: none;
@@ -170,25 +179,47 @@
 .view-tender-page-document a {
   color: #0056b3;
   text-decoration: underline;
+  font-weight: bold;
 }
 
 /* Responsive adjustments */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
+  .view-tender-page-container {
+    padding: 10px;
+  }
+
   .view-tender-page-header-container {
     flex-direction: column;
     align-items: center;
   }
-  .view-tender-page-header-container h1 {
-   color: #ffffff;
+
+  .Click-On-Tender-To-Bid {
+    margin-right: 0;
+    font-size: 24px;
   }
 
-  .view-tender-page-header {
-    margin: 10px 0;
+  .view-tender-page-list-container {
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+  }
+
+  .view-tender-page-card {
+    padding: 15px;
   }
 }
 
-.Click-On-Tender-To-Bid{
-  font-weight: 600;
-  margin-right: 365px;
-  color: #ffffff;
+@media (max-width: 600px) {
+  .view-tender-page-container {
+    padding: 5px;
+  }
+
+  .view-tender-page-list-container {
+    grid-template-columns: 1fr;
+  }
+
+  .Click-On-Tender-To-Bid {
+    font-size: 20px;
+    margin-right: 0;
+    text-align: center;
+  }
 }
