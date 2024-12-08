@@ -1,82 +1,243 @@
 /* src/components/Tender/CreateTenderPage.css */
 
 .create-tender {
-  max-width: 690px;
-  margin: 0 auto;
-  padding: 20px;
+  max-width: 570px;
+  margin: 50px auto;
+  padding: 30px;
   border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  background-color: #f9f9f9;
-  margin-top: 50px;
-  margin-bottom: 50px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
 }
 
 .create-tender h1 {
   text-align: center;
+  font-size: 2.5rem;
+  font-weight: 600;
   color: #6200ea;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .form-group label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
   color: #333;
+  display: block;
 }
 
 .form-group input[type="text"],
 .form-group textarea,
 .form-group select,
-.form-group input[type="file"] {
-  width: 100%;
-  padding: 10px;
+.form-group input[type="date"],
+.form-group input[type="number"] {
+  width: 80%;
+  padding: 12px;
   border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 16px;
-  transition: border-color 0.3s, box-shadow 0.3s;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background-color: #f9f9f9;
 }
+.createdateparent{
+ margin-left:2px;
+ justify-content: space-evenly;
 
+ display: flex;
+}
+.form-group input[type="date"]{
+  
+  width: 100%;   font-size: 1rem !important;
+}
 .form-group input[type="text"]:focus,
 .form-group textarea:focus,
 .form-group select:focus,
-.form-group input[type="file"]:focus {
+.form-group input[type="date"]:focus,
+.form-group input[type="number"]:focus {
   border-color: #6200ea;
-  box-shadow: 0 0 5px rgba(98, 0, 234, 0.5);
+  box-shadow: 0 0 8px rgba(98, 0, 234, 0.5);
   outline: none;
+  background-color: #5dcbed;
 }
 
-.form-actions {
-  text-align: center;
+.form-group textarea {
+  height: 60px;
+  resize: vertical;
 }
 
-.form-actions button {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 15px;
-  background-color: #06020b;
-  color: #fff;
-  font-size: 20px;
+.form-group select {
   cursor: pointer;
-  transition: background-color 0.3s;
 }
 
-.form-actions button:hover {
+button[type="button"],
+button[type="submit"] {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 30px;
+  background-color: #6200ea;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button[type="button"]:hover,
+button[type="submit"]:hover {
+  background-color: #3d00a1;
+}
+
+button[type="button"] {
   background-color: #414142;
+  color: white;
+}
+
+button[type="button"]:hover {
+  background-color: #575757;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 90%;
+  width: 600px;
+}
+
+.modal-content h2 {
+  font-size: 1.8rem;
+  color: #6200ea;
+  margin-bottom: 20px;
+}
+
+table {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+}
+
+table th,
+table td {
+  padding: 12px;
+  text-align: center;
+  border: 1px solid #ddd;
+}
+
+table th {
+  background-color: #f1f1f1;
+  font-weight: 600;
+  color: #6200ea;
+}
+
+table td input {
+  width: 90%;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+button[type="button"]:not(.modal-actions button) {
+  margin-top: 20px;
+  background-color: #4caf50;
+  color: white;
+}
+
+button[type="button"]:not(.modal-actions button):hover {
+  background-color: #45a049;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+.modal-actions button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 20px;
+  background-color: #6200ea;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.modal-actions button:hover {
+  background-color: #3d00a1;
+}
+
+.total-quotation {
+  margin-top: 20px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
 }
 
 .create-tender a {
   display: block;
   text-align: center;
-  margin-top: 20px;
+  margin-top: 30px;
   color: #6200ea;
+  font-size: 1rem;
   text-decoration: none;
 }
 
 .create-tender a:hover {
   text-decoration: underline;
+}
+
+/* Center the buttons inside the form */
+.form-actions {
+  text-align: center;
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  gap: 20px; /* Space between buttons */
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .create-tender {
+    padding: 20px;
+    margin: 30px;
+  }
+
+  .create-tender h1 {
+    font-size: 2rem;
+  }
+
+  .form-group input[type="text"],
+  .form-group input[type="number"],
+  .form-group input[type="date"],
+  .form-group textarea,
+  .form-group select {
+    font-size: 0.9rem;
+  }
+
+  .modal-content {
+    width: 90%;
+    padding: 20px;
+  }
+
+  table td input {
+    width: 80%;
+  }
 }

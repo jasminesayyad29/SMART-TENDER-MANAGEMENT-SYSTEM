@@ -1,46 +1,50 @@
 const mongoose = require('mongoose');
 
 const bidSchema = new mongoose.Schema({
-    tenderId:{
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'Tender', 
-        required: true 
+    tenderId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Tender',
+        required: true
     },
-    bidderName:{ 
-        type: String, 
-        required: true 
+    bidderName: {
+        type: String,
+        required: true
     },
-    companyName: { 
-        type: String, 
-        required: true 
+    companyName: {
+        type: String,
+        required: true
     },
     companyRegNumber: {
-        type: String 
+        type: String
     },
     email: {
-        type: String, 
-        required: true 
-    },
-    phoneNumber: { 
         type: String,
-        required: true 
+        required: true
     },
-    bidAmount: { 
-        type: Number, 
-        required: true 
+    phoneNumber: {
+        type: String,
+        required: true
     },
-    description: { 
-        type: String, 
-        required: true 
+    bidAmount: {
+        type: Number,
+        required: true
     },
-    additionalNotes: { 
-        type: String 
+    description: {
+        type: String,
+        required: true
     },
-    expiryDate: { 
-        type: Date 
+    additionalNotes: {
+        type: String
     },
-    filePath: { 
-        type: String 
+    expiryDate: {
+        type: Date
+    },
+    filePath: {
+        type: String
+    },
+    BidderPropAmount: {
+        type: [Number],  // Array of numbers
+        required: true
     },
     createdAt: { type: Date, default: Date.now }
 });

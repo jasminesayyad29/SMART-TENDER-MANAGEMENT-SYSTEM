@@ -1,85 +1,117 @@
 /* src/components/Tender/DeleteTenderPage.css */
 
 .delete-tender-page {
-    max-width: 600px;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: #f9f9f9; /* Light background for the form */
-    border-radius: 10px; /* Rounded corners */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-    display: flex;
-    flex-direction: column; /* Stack children vertically */
-    align-items: center; /* Center align items */
-  }
-  
-  .delete-tender-page h1 {
-    color: #6a0dad; /* Vibrant purple for the heading */
-    margin-bottom: 20px;
-    text-align: center; /* Center heading */
-  }
-  
-  .delete-tender-page form {
-    display: flex;
-    flex-direction: column;
-    width: 100%; /* Full width for the form */
-  }
-  
-  .delete-tender-page label {
-    margin-bottom: 8px;
-    font-weight: bold;
-    align-self: flex-start; /* Align labels to the start */
-  }
-  
-  .delete-tender-page input[type="text"],
-  .delete-tender-page textarea {
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 1rem;
-    transition: border-color 0.3s;
-    width: 100%; /* Full width for input fields */
-  }
-  
-  .delete-tender-page input[type="text"]:focus,
-  .delete-tender-page textarea:focus {
-    border-color: #6a0dad; /* Change border color on focus */
-  }
-  
-  .delete-tender-page button {
-    padding: 10px;
-    background-color: #ff6347; /* Coral background for buttons */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.3s, transform 0.2s;
-    margin-top: 10px; /* Space above button */
-  }
-  
-  .delete-tender-page button:hover {
-    background-color: #e55347; /* Darker shade on hover */
-    transform: scale(1.05); /* Slightly scale up on hover */
-  }
-  
-  .delete-tender-page h3 {
-    text-align: center;
-    color: #333; /* Dark text for contrast */
-    margin: 20px 0;
-  }
-  
-  .delete-tender-page div {
-    text-align: center; /* Centering confirmation options */
-  }
-  
-  .delete-tender-page button[type="button"] {
-    background-color: #ddd; /* Grey background for cancel button */
-    color: #333;
-    margin-top: 10px; /* Space above cancel button */
-  }
-  
-  .delete-tender-page button[type="button"]:hover {
-    background-color: #ccc; /* Darker grey on hover */
-  }
-  
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #fafafa; /* Slightly softer background for a modern feel */
+  border-radius: 12px; /* Rounded corners for a more modern appearance */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* Increased shadow for more depth */
+  display: flex;
+  flex-direction: column; /* Stack children vertically */
+  align-items: center; /* Center align items */
+  transition: box-shadow 0.3s ease-in-out; /* Smooth shadow transition */
+}
+
+.delete-tender-page:hover {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
+}
+
+.delete-tender-page h1 {
+  color: #6a0dad; /* Vibrant purple for the heading */
+  margin-bottom: 20px;
+  text-align: center; /* Center heading */
+  font-size: 1.8rem; /* Slightly larger heading for better prominence */
+}
+
+.delete-tender-page form {
+  display: flex;
+  flex-direction: column;
+  width: 100%; /* Full width for the form */
+}
+
+.delete-tender-page label {
+  margin-bottom: 8px;
+  font-weight: 600; /* Slightly bolder labels */
+  align-self: flex-start; /* Align labels to the start */
+  color: #555; /* Soft dark color for the labels */
+}
+
+.delete-tender-page input[type="text"],
+.delete-tender-page textarea {
+  padding: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px; /* Slightly larger border radius for inputs */
+  font-size: 1rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  width: 100%; /* Full width for input fields */
+  background-color: #fff; /* White background for inputs */
+}
+.delyes{
+  display: flex;
+  background-color: #6a0dad !important;
+  justify-content: space-evenly;
+  margin-left: 150px;
+}
+.delno {
+  display: flex;
+  background-color: #c9df0a;
+  justify-content: space-evenly;
+  margin-left: 150px;
+}
+
+a {
+  text-decoration: none; /* Remove underline from links */
+}
+
+.delete-tender-page input[type="text"]:focus,
+.delete-tender-page textarea:focus {
+  border-color: #6a0dad; /* Change border color on focus */
+  box-shadow: 0 0 5px rgba(106, 13, 173, 0.3); /* Light shadow on focus */
+}
+
+.delete-tender-page button {
+  padding: 12px 20px;
+  background-color: #cc950a; /* Coral background for buttons */
+  color: white;
+  border: none;
+  border-radius: 40px; /* Larger rounded corners for a more modern look */
+  cursor: pointer;
+  font-size: 1.1rem; /* Slightly larger font for buttons */
+  transition: background-color 0.3s ease, transform 0.2s ease-in-out;
+  margin-top: 1px; /* Increased space above button */
+  width: 100%; /* Make the button full width */
+  align-items: center;
+  margin: auto;
+  max-width: 250px; /* Limit button width */
+}
+
+.delete-tender-page button:hover {
+  background-color: #e55347; /* Darker shade on hover */
+  transform: scale(1.05); /* Slightly scale up on hover */
+}
+
+.delete-tender-page h3 {
+  text-align: center;
+  color: #333; /* Dark text for contrast */
+  margin: 25px 0;
+  font-size: 1.2rem; /* Larger font for confirmation */
+}
+
+.delete-tender-page div {
+  text-align: center; /* Centering confirmation options */
+}
+
+.delete-tender-page button[type="button"] {
+  background-color: #ddd; /* Grey background for cancel button */
+  color: #333;
+  margin-top: 10px; /* Space above cancel button */
+  border-radius: 40px; /* Consistent button radius */
+  width: 100%; /* Make the button full width */
+  max-width: 250px; /* Limit button width */
+}
+
+.delete-tender-page button[type="button"]:hover {
+  background-color: #ccc; /* Darker grey on hover */
+}

@@ -1,85 +1,199 @@
-/* src/components/Tender/ModifyTenderPage.css */
-
 .modify-tender-page {
-    max-width: 600px; /* Set a maximum width for the form */
-    margin: 20px auto; /* Center the form horizontally */
-    padding: 20px; /* Inner spacing */
-    background-color: #f9f9f9; /* Light background for the form */
-    border-radius: 10px; /* Rounded corners */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  max-width: 700px;
+  /* Increase maximum width for better layout */
+  margin: 20px auto;
+  padding: 25px;
+  background-color: #ffffff;
+  /* Use a clean white background */
+  border-radius: 15px;
+  /* Slightly more rounded corners for the container */
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  /* Enhanced shadow for depth */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Arial', sans-serif;
+  /* Modern and clean font */
+}
+
+.modify-tender-page h1 {
+  color: #6a0dad;
+  /* Maintain the vibrant purple for the main heading */
+  font-size: 2rem;
+  /* Increase heading size */
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.modify-tender-page h3 {
+  color: #555;
+  /* Use a dark grey for subheadings */
+  font-size: 1.25rem;
+  /* Slightly smaller than main heading */
+  margin: 15px 0;
+  text-align: center;
+}
+
+.modify-tender-page form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  /* Stretch form to full container width */
+}
+
+.modify-tender-page label {
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #333;
+  /* Dark grey for labels */
+  font-size: 0.95rem;
+  /* Slightly smaller label size */
+  align-self: flex-start;
+}
+
+.reenter input[type="text"] {
+  width: 100%;
+  justify-content: space-evenly;
+  align-items: center !important;}
+  .modifybutton{
     display: flex;
-    flex-direction: column; /* Stack children vertically */
-    align-items: center; /* Center align items */
-  }
-  
-  .modify-tender-page h1 {
-    color: #6a0dad; /* Vibrant purple for the heading */
-    margin-bottom: 20px;
-    text-align: center; /* Center heading */
-  }
-  
-  .modify-tender-page form {
-    display: flex;
-    flex-direction: column; /* Stack inputs vertically */
-    width: 100%; /* Full width for the form */
-  }
-  
-  .modify-tender-page label {
-    margin-bottom: 8px; /* Space below labels */
-    font-weight: bold; /* Bold labels for emphasis */
-    align-self: flex-start; /* Align labels to the start */
-  }
-  
-  .modify-tender-page input[type="text"],
-  .modify-tender-page textarea {
-    padding: 10px; /* Inner spacing for inputs */
-    margin-bottom: 15px; /* Space below inputs */
-    border: 1px solid #ddd; /* Light border */
-    border-radius: 5px; /* Rounded edges */
-    font-size: 1rem; /* Base font size */
-    transition: border-color 0.3s; /* Transition effect on focus */
-    width: 100%; /* Full width for input fields */
-  }
-  
-  .modify-tender-page input[type="text"]:focus,
-  .modify-tender-page textarea:focus {
-    border-color: #6a0dad; /* Change border color on focus */
-  }
-  
-  .modify-tender-page button {
-    padding: 10px; /* Inner spacing for buttons */
-    background-color: #ff6347; /* Coral background for buttons */
-    color: white; /* Text color */
-    border: none; /* No border */
-    border-radius: 5px; /* Rounded edges */
-    cursor: pointer; /* Pointer cursor on hover */
-    font-size: 1rem; /* Base font size */
-    transition: background-color 0.3s, transform 0.2s; /* Transition effects */
-    margin-top: 10px; /* Space above button */
-  }
-  
-  .modify-tender-page button:hover {
-    background-color: #e55347; /* Darker shade on hover */
-    transform: scale(1.05); /* Slightly scale up on hover */
-  }
-  
-  .modify-tender-page h3 {
-    text-align: center; /* Center heading for the confirmation */
-    color: #333; /* Dark text for contrast */
-    margin: 20px 0; /* Space above and below */
-  }
-  
-  .modify-tender-page div {
-    text-align: center; /* Centering confirmation options */
-  }
-  
-  .modify-tender-page button[type="button"] {
-    background-color: #ddd; /* Grey background for cancel button */
-    color: #333; /* Text color for cancel button */
-    margin-top: 10px; /* Space above cancel button */
-  }
-  
-  .modify-tender-page button[type="button"]:hover {
-    background-color: #ccc; /* Darker grey on hover */
-  }
-  
+    justify-content: space-evenly;
+margin-left: 115px;  }
+
+.modify-tender-page input[type="text"],
+.modify-tender-page textarea,
+.modify-tender-page input[type="date"],
+.modify-tender-page select {
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  /* Rounded corners for inputs */
+  font-size: 1rem;
+  background-color: #f7f7f7;
+  /* Subtle background for inputs */
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  /* Soft inner shadow */
+  transition: border-color 0.3s, background-color 0.3s;
+  width: 100%;
+}
+
+.modify-tender-page input[type="text"]:focus,
+.modify-tender-page textarea:focus,
+.modify-tender-page input[type="date"]:focus,
+.modify-tender-page select:focus {
+  border-color: #6a0dad;
+  background-color: #ffffff;
+  /* Highlight active field */
+}
+
+.modify-tender-page button {
+  padding: 12px 20px;
+  background-color: #6a0dad;
+  /* Consistent button color */
+  color: white;
+  border: none;
+  border-radius: 40px;
+  /* Requested border radius */
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s, transform 0.2s;
+  margin-top: 15px;
+}
+
+.modify-tender-page button:hover {
+  background-color: #580b99;
+  /* Darker shade on hover */
+  transform: translateY(-2px);
+  /* Subtle lift effect */
+}
+
+.modify-tender-page button[type="button"] {
+  background-color: #ddd;
+  color: #333;
+}
+
+.modify-tender-page button[type="button"]:hover {
+  background-color: #bbb;
+}
+
+.modify-tender-page .error-message {
+  color: #ff4d4d;
+  /* Bright red for errors */
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.modify-tender-page .success-message {
+  color: #28a745;
+  /* Green for success messages */
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  /* Remove gaps between cells */
+  margin: 20px 0;
+}
+
+.table th,
+.table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  /* Light border for table */
+  text-align: left;
+}
+
+.table th {
+  background-color: #6a0dad;
+  /* Purple for table header */
+  color: white;
+}
+
+.table tr:nth-child(even) {
+  background-color: #f9f9f9;
+  /* Alternating row colors */
+}
+
+.total-quotation {
+  margin-top: 20px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #6a0dad;
+  /* Match brand color */
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 75%;
+  height: 85%;
+  background-color: rgba(0, 0, 0, 0.5);
+  /* Semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  /* Ensure it appears above other elements */
+}
+
+.modal-content {
+  background-color: #fff;
+  border-radius: 15px;
+  padding: 20px;
+  width: 60%;
+  max-width: 500px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  /* Add depth */
+}
+
+.modal-actions button {
+  background-color: #6a0dad;
+  color: white;
+  border-radius: 40px;
+  padding: 10px 15px;
+  margin: 10px;
+}

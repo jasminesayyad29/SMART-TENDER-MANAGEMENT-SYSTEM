@@ -9,38 +9,72 @@ const BidDetailsPage = () => {
   const navigate = useNavigate();
   const [bidDetails, setBidDetails] = useState([]);
   const [selectedBid, setSelectedBid] = useState(null);
+  const [quotationData, setQuotationData] = useState(null);
   const [error, setError] = useState('');
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     // Retrieve email from user object in localStorage and log it
     const storedUser = JSON.parse(localStorage.getItem('user'));
     const email = storedUser?.email;
     console.log("Email from localStorage:", email);
-
+  
     if (!email) {
       setError("User email not found in localStorage.");
       return;
     }
-
+  
     // Fetch tenders based on email
     const getBids = async () => {
       try {
         const data = await fetchbidsbymail(email);
+  
+        // Add status logic based on expiryDate (similar to AllBidDetails)
+        const today = new Date();
+        data.forEach((bid) => {
+          const expiryDate = bid.expiryDate ? new Date(bid.expiryDate) : null;
+          bid.status = expiryDate && expiryDate >= today ? 'Active' : 'Inactive';
+        });
+  
         setBidDetails(data);
       } catch (err) {
         setError(`No Bids found for email: ${email}`);
         console.error("Error fetching bids:", err);
       }
     };
-
+  
     getBids();
   }, []);
+  
 
   const openModal = (bid) => {
     setSelectedBid(bid);
+    setShowModal(true);
+
+    // Fetch quotation data
+    const fetchQuotationDetails = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/tenders/id/${bid.tenderId}`);
+        const data = response.data;
+
+        // Fetch BidderPropAmount and include it in the quotationData
+        const bidderAmounts = bid.BidderPropAmount || [];
+
+        setQuotationData({
+          ...data,
+          BidderPropAmount: bidderAmounts,
+        });
+      } catch (err) {
+        console.error("Error fetching quotation details:", err);
+        setError('Failed to fetch quotation details.');
+      }
+    };
+
+    fetchQuotationDetails();
   };
 
   const closeModal = () => {
+    setShowModal(false);
     setSelectedBid(null);
   };
 
@@ -58,37 +92,109 @@ const BidDetailsPage = () => {
       <div className="bid-details-page-bid-details-container">
         {bidDetails.map((bid) => (
           <div key={bid._id} className="bid-details-page-card" onClick={() => openModal(bid)}>
-          <h2>Bid Details for Tender-Id: <span>{bid.tenderId}</span></h2>
-          <h3>Bid ID: <span>{bid._id}</span></h3>
-          <h3>Tender: <span>{bid.tenderId}</span></h3>
-        </div>
-        
+            <h2>Bid Details for Tender-Id: <span>{bid.tenderId}</span></h2>
+            <h3>Bid ID: <span>{bid._id}</span></h3>
+            <h3>Tender: <span>{bid.tenderId}</span></h3>
+          </div>
         ))}
 
-        {selectedBid && (
-          <div className="bid-details-page-modal-overlay" onClick={closeModal}>
-            <div className="bid-details-page-modal-content" onClick={(e) => e.stopPropagation()}>
-              <button className="bid-details-page-close-button" onClick={closeModal}>X</button>
-              <p><strong>Bid Details for Tender-Id:</strong> <span className="highlighted-field">{selectedBid.tenderId}</span></p>
-<p><strong>Bid ID:</strong> <span className="highlighted-field">{selectedBid._id}</span></p>
-<p><strong>Tender:</strong> <span className="highlighted-field">{selectedBid.tenderId}</span></p>
+        {showModal && selectedBid && (
+          <div className="modal" style={{ textAlign: 'left' }}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ textAlign: 'left' }}>
+              <button className="modal-close-button" onClick={closeModal}>×</button>
 
-              <p><strong>Bidder Name:</strong> <span>{selectedBid.bidderName}</span></p>
-              <p><strong>Company Name:</strong> <span>{selectedBid.companyName}</span></p>
-              <p><strong>Company Registration Number:</strong> <span>{selectedBid.companyRegNumber}</span></p>
-              <p><strong>Email:</strong> <span>{selectedBid.email}</span></p>
-              <p><strong>Phone Number:</strong> <span>{selectedBid.phoneNumber}</span></p>
-              <p><strong>Bid Amount:</strong> <span>${selectedBid.bidAmount}</span></p>
-              <p><strong>Bid Description:</strong> <span>{selectedBid.description}</span></p>
-              <p><strong>Additional Notes:</strong> <span>{selectedBid.additionalNotes || "None"}</span></p>
-              <p><strong>Expiry Date:</strong> <span>{new Date(selectedBid.expiryDate).toLocaleDateString()}</span></p>
+              {/* Bid Details */}
+              <h2>Bid Details</h2>
+              <div style={{ marginBottom: '20px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <label><strong>Bid ID:</strong></label>
+                    <span>{selectedBid._id}</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <label><strong>Bidder Name:</strong></label>
+                    <span>{selectedBid.bidderName}</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <label><strong>Company Name:</strong></label>
+                    <span>{selectedBid.companyName}</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <label><strong>Email:</strong></label>
+                    <span>{selectedBid.email}</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <label><strong>Phone Number:</strong></label>
+                    <span>{selectedBid.phoneNumber}</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <label><strong>Tender ID:</strong></label>
+                    <span>{selectedBid.tenderId}</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <label><strong>Description:</strong></label>
+                    <span>{selectedBid.description}</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <label><strong>Additional Notes:</strong></label>
+                    <span>{selectedBid.additionalNotes}</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <label><strong>Expiry Date:</strong></label>
+                    <span>{selectedBid.expiryDate ? new Date(selectedBid.expiryDate).toLocaleDateString() : 'N/A'}</span>
+                  </div>
+                  {selectedBid.filePath && (
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <label><strong>Document:</strong></label>
+                      <a href={`http://localhost:5000/${selectedBid.filePath}`} target="_blank" rel="noopener noreferrer">View Document</a>
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <label><strong>Status:</strong></label>
+                    <span style={{ fontWeight: 'bold', color: selectedBid.status === 'Inactive' ? 'red' : 'green' }}>
+                      {selectedBid.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
 
-              {selectedBid.filePath && (
-                <p>
-                  <a href={`http://localhost:5000/${selectedBid.filePath}`} target="_blank" rel="noopener noreferrer">
-                    Download
-                  </a>
-                </p>
+              {/* Quotation Details */}
+              {quotationData && (
+                <div>
+                  <h2>Quotation Details</h2>
+                  <table style={{ textAlign: 'left', width: '100%' }}>
+                    <thead>
+                      <tr>
+                        <th>Materials</th>
+                        <th>Quantity</th>
+                        <th>Proposed Amount</th>
+                        <th>Bid Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {quotationData.materials && quotationData.materials.map((material, index) => (
+                        <tr key={index}>
+                          <td>{material}</td>
+                          <td>{quotationData.quantity[index]}</td>
+                          <td>{quotationData.TenderPropAmount[index]}</td>
+                          <td>
+                            {quotationData.BidderPropAmount && quotationData.BidderPropAmount[index] !== undefined
+                              ? quotationData.BidderPropAmount[index]
+                              : 'N/A'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <div className='subAmou'>
+                    <div className="total-quotation">
+                      <strong>Total Quotation Amount: </strong>{quotationData?.Totalquotation}
+                    </div>
+                    <div className="total-bid-amount">
+                      <strong>Total Bid Amount: </strong>{selectedBid.bidAmount}
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
           </div>

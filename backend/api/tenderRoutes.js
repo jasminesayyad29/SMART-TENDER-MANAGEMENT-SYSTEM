@@ -22,19 +22,43 @@ const upload = multer({ storage });
 // Create a new tender
 router.post('/', upload.single('document'), async (req, res) => {
   try {
-    const { email, title, eligibility, description, type, status, startDate, endDate } = req.body;
-    const document = req.file ? req.file.path : ''; // Get the file path
+    const {
+      email,
+      title,
+      eligibility,
+      description,
+      type,
+      status,
+      startDate,
+      endDate,
+      materials,
+      quantity,
+      TenderPropAmount,
+      Totalquotation,
+    } = req.body;
 
+    const document = req.file ? req.file.path : ''; // Get the uploaded document path
+
+    // Parse the JSON strings received from the front-end
+    const parsedMaterials = JSON.parse(materials);
+    const parsedQuantities = JSON.parse(quantity);
+    const parsedTenderPropAmount = JSON.parse(TenderPropAmount);
+
+    // Create the tender object
     const newTender = new Tender({
       email,
       title,
-      eligibility, 
+      eligibility,
       description,
       type,
       status,
       startDate,
       endDate,
       document, // Save the document path
+      materials: parsedMaterials, // Use parsed materials
+      quantity: parsedQuantities, // Use parsed quantities
+      TenderPropAmount: parsedTenderPropAmount, // Use parsed TenderPropAmount
+      Totalquotation, // TotalQuotation remains a string/number
     });
 
     await newTender.save();
@@ -55,6 +79,8 @@ router.get('/', async (req, res) => {
     res.status(500).json({ message: 'Error fetching tenders', error });
   }
 });
+
+
 
 // Delete a tender by ID
 const {auth , isBidder, isAdmin} = require("../middlewares/auth") ;
@@ -93,17 +119,34 @@ router.get('/:email', async (req, res) => {
   }
 });
 
-//To modify tender based on tenderId
-
+// Update an existing tender
 router.put('/:id', upload.single('document'), async (req, res) => {
   try {
-    const tenderId = req.params.id;  // Extract tender ID from the URL
-    const { email, title, eligibility, description, type, status, startDate, endDate } = req.body;
-    const document = req.file ? req.file.path : '';  // Get the new document path, if provided
+    const {
+      email,
+      title,
+      eligibility,
+      description,
+      type,
+      status,
+      startDate,
+      endDate,
+      materials,
+      quantity,
+      TenderPropAmount,
+      Totalquotation,
+    } = req.body;
 
-    // Find the existing tender by ID
+    const document = req.file ? req.file.path : ''; // Get the uploaded document path (if any)
+
+    // Parse the JSON strings received from the front-end
+    const parsedMaterials = JSON.parse(materials);
+    const parsedQuantities = JSON.parse(quantity);
+    const parsedTenderPropAmount = JSON.parse(TenderPropAmount);
+
+    // Find the tender by its ID and update it
     const updatedTender = await Tender.findByIdAndUpdate(
-      tenderId, // ID of the tender to update
+      req.params.id, // ID from the URL parameter
       {
         email,
         title,
@@ -113,9 +156,13 @@ router.put('/:id', upload.single('document'), async (req, res) => {
         status,
         startDate,
         endDate,
-        document, // Update document if a new file is uploaded
+        document, // Update the document path
+        materials: parsedMaterials, // Update materials
+        quantity: parsedQuantities, // Update quantities
+        TenderPropAmount: parsedTenderPropAmount, // Update TenderPropAmount
+        Totalquotation, // Update TotalQuotation
       },
-      { new: true } // Option to return the updated tender document
+      { new: true } // Return the updated document
     );
 
     if (!updatedTender) {

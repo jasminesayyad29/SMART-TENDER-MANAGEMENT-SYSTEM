@@ -31,13 +31,62 @@ router.post('/bids', upload.single('file'), async (req, res) => {
             description,
             additionalNotes,
             expiryDate,
-            filePath
+            BidderPropAmount // Can be a JSON string or an array
         } = req.body;
 
-        if (!tenderId || !bidderName || !companyName || !email || !phoneNumber || !bidAmount || !description) {
-            return res.status(400).json({ message: 'Please provide all required fields' });
+        // Log all incoming fields
+        console.log('Received Data:', {
+            tenderId,
+            bidderName,
+            companyName,
+            companyRegNumber,
+            email,
+            phoneNumber,
+            bidAmount,
+            description,
+            additionalNotes,
+            expiryDate,
+            BidderPropAmount,
+            file: req.file ? req.file.path : null,
+        });
+
+        // Check for missing fields
+        const missingFields = [];
+        if (!tenderId) missingFields.push('tenderId');
+        if (!bidderName) missingFields.push('bidderName');
+        if (!companyName) missingFields.push('companyName');
+        if (!email) missingFields.push('email');
+        if (!phoneNumber) missingFields.push('phoneNumber');
+        if (!bidAmount) missingFields.push('bidAmount');
+        if (!description) missingFields.push('description');
+        if (!BidderPropAmount) missingFields.push('BidderPropAmount');
+
+        if (missingFields.length > 0) {
+            return res
+                .status(400)
+                .json({ message: `Missing required fields: ${missingFields.join(', ')}` });
         }
 
+        // Handle BidderPropAmount parsing
+        let parsedBidderPropAmount;
+        if (typeof BidderPropAmount === 'string') {
+            try {
+                parsedBidderPropAmount = JSON.parse(BidderPropAmount);
+            } catch (err) {
+                return res.status(400).json({ message: 'Invalid BidderPropAmount format' });
+            }
+        } else if (Array.isArray(BidderPropAmount)) {
+            parsedBidderPropAmount = BidderPropAmount;
+        } else {
+            return res.status(400).json({ message: 'BidderPropAmount must be a JSON string or an array' });
+        }
+
+        // Validate that the parsed BidderPropAmount is an array of numbers
+        if (!Array.isArray(parsedBidderPropAmount) || parsedBidderPropAmount.some(isNaN)) {
+            return res.status(400).json({ message: 'BidderPropAmount must be an array of numbers' });
+        }
+
+        // Create new bid instance with required and additional fields
         const bid = new Bid({
             tenderId,
             bidderName,
@@ -50,8 +99,10 @@ router.post('/bids', upload.single('file'), async (req, res) => {
             additionalNotes,
             expiryDate,
             filePath: req.file ? req.file.path : null,
+            BidderPropAmount: parsedBidderPropAmount,
         });
 
+        // Save bid to the database
         await bid.save();
         res.status(201).json({ message: 'Bid submitted successfully', bid });
 
@@ -60,6 +111,8 @@ router.post('/bids', upload.single('file'), async (req, res) => {
         res.status(500).json({ message: 'Failed to submit bid', error: error.message });
     }
 });
+
+
 
 // 2. GET route to fetch all bids (admin evaluation dashboard)
 router.get('/bids/:bidderId', async (req, res) => {
@@ -197,6 +250,7 @@ router.get('/bids/email/:email', async (req, res) => {
         res.status(500).json({ message: 'Error fetching bids', error });
     }
 });
+
 router.put('/bids/:id', async (req, res) => {
     try {
         const { ratings, comments } = req.body;

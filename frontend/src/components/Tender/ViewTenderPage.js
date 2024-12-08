@@ -72,40 +72,117 @@ const ViewTenderPage = () => {
         </div>
       )}
 
-      {/* Modal for displaying tender details */}
+      {/* Modal content replaced by AllTenderDetails component */}
       {isModalOpen && selectedTender && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button onClick={closeModal} className="modal-close-button">×</button>
-            <h2 className="view-tender-page-id">
-              Tender ID: <span className="highlighted-text">{selectedTender._id}</span>
-            </h2>
-            <p className="view-tender-page-title">Created By: {selectedTender.email}</p>
-            <h3 className="view-tender-page-title">{selectedTender.title}</h3>
-            <p className="view-tender-page-desc">{selectedTender.description}</p>
-            <p className="view-tender-page-type">Type: {selectedTender.type}</p>
-            <p
-              className="view-tender-page-status"
-              style={{ color: isInactive(selectedTender.endDate) ? 'red' : 'green' }}
+        <div className="quotation-page" style={{ textAlign: "left" }}>
+          <div className="modal" style={{ textAlign: "left" }}>
+            <div
+              className="modal-content"
+              style={{ textAlign: "left" }}
+              onClick={(e) => e.stopPropagation()}
             >
-              Status: {isInactive(selectedTender.endDate) ? 'Inactive' : selectedTender.status}
-            </p>
-            <p className="view-tender-page-dates">
-              Start Date: {selectedTender.startDate ? new Date(selectedTender.startDate).toLocaleDateString() : 'N/A'}
-            </p>
-            <p className="view-tender-page-dates">
-              End Date: {selectedTender.endDate ? new Date(selectedTender.endDate).toLocaleDateString() : 'N/A'}
-            </p>
-            {selectedTender.document && (
-              <p className="view-tender-page-document">
-                <a href={`http://localhost:5000/${selectedTender.document}`} target="_blank" rel="noopener noreferrer">
-                  View Document
+              <button
+                className="modal-close-button"
+                style={{ textAlign: "left" }}
+                onClick={closeModal}
+              >
+                ×
+              </button>
+              {/* Tender Details */}
+              <h2 style={{ textAlign: "left" }}>Tender Details</h2>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <label><strong>Tender ID:</strong></label>
+                  <span>{selectedTender?._id}</span>
+                </div>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <label><strong>Title:</strong></label>
+                  <span>{selectedTender?.title}</span>
+                </div>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <label><strong>Created by:</strong></label>
+                  <span>{selectedTender?.email}</span>
+                </div>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <label><strong>Description:</strong></label>
+                  <span>{selectedTender?.description}</span>
+                </div>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <label><strong>Type:</strong></label>
+                  <span>{selectedTender?.type}</span>
+                </div>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <label><strong>Status:</strong></label>
+                  <span
+                    style={{
+                      fontWeight: "bold",
+                      color: isInactive(selectedTender?.endDate) ? "red" : "rgb(15, 176, 3)", // Check if inactive
+                    }}
+                  >
+                    {isInactive(selectedTender?.endDate) ? "Inactive" : "Active"} {/* Display Active or Inactive based on endDate */}
+                  </span>
+                </div>
+
+
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <label><strong>Start Date:</strong></label>
+                  <span>
+                    {selectedTender?.startDate
+                      ? new Date(selectedTender.startDate).toLocaleDateString()
+                      : "N/A"}
+                  </span>
+                </div>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <label><strong>End Date:</strong></label>
+                  <span>
+                    {selectedTender?.endDate
+                      ? new Date(selectedTender.endDate).toLocaleDateString()
+                      : "N/A"}
+                  </span>
+                </div>
+                {selectedTender?.document && (
+                  <div style={{ display: "flex", gap: "10px" }}>
+                    <label><strong>Document:</strong></label>
+                    <a
+                      href={`http://localhost:5000/${selectedTender.document}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      View Document
+                    </a>
+                  </div>
+                )}
+              </div>
+
+              {/* Quotation Details */}
+              <p style={{ textAlign: "center", fontWeight: "bold", fontSize: "larger" }}>Quotation Details</p>
+              <table style={{ textAlign: "left", width: "100%" }}>
+                <thead>
+                  <tr>
+                    <th>Materials</th>
+                    <th>Quantity</th>
+                    <th>Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedTender?.materials &&
+                    selectedTender.materials.map((material, index) => (
+                      <tr key={index}>
+                        <td>{material}</td>
+                        <td>{selectedTender.quantity[index]}</td>
+                        <td>{selectedTender.TenderPropAmount[index]}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+              <div className="total-quotation" style={{ textAlign: "left" }}>
+                <strong>Total Quotation Amount: </strong>
+                {selectedTender?.Totalquotation}
+                <a href={`/tender/submit/${selectedTender._id}`} className="view-tender-page-submit-bid-link">
+                  Submit Bid
                 </a>
-              </p>
-            )}
-            <a href={`/tender/submit/${selectedTender._id}`} className="view-tender-page-submit-bid-link">
-              Submit Bid
-            </a>
+              </div>
+            </div>
           </div>
         </div>
       )}

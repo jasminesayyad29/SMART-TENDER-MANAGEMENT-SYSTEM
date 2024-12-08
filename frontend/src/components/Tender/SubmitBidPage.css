@@ -169,3 +169,19 @@
     font-size: 14px;
   }
 }
+.total-bid-amount{
+  margin-top: 18px !important;
+  margin-right: 18px !important;
+  font-weight: bold;
+  font-size: 18px;
+  color:maroon;
+}
+.subAmou{
+  display: flex;
+  justify-content: space-between;
+}
+.AddQuotationHere{
+  background-color: #cc950a !important;
+  width: fit-content;
+margin: auto !important;
+}
