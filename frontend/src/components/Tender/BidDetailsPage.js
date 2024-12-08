@@ -200,6 +200,9 @@ const BidDetailsPage = () => {
           </div>
         )}
       </div>
+      <br/>
+      <br/>
+      <br/>
     </>
   );
 };
