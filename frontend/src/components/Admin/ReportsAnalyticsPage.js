@@ -235,7 +235,7 @@ const ReportsAnalyticsPage = () => {
                   <td>{tenders.find((tender) => tender._id === bid.tenderId)?.title || 'N/A'}</td>
                   <td>{bid.bidderName}</td>
                   <td>{bid.bidAmount}</td>
-                  <td>{bidScores[bid._id] ? bidScores[bid._id].toFixed(1) : 'Not Scored'}</td>
+                  <td>{bidScores[bid._id] ? bidScores[bid._id].toFixed(3) : 'Not Scored'}</td>
                 </tr>
               ))}
             </tbody>

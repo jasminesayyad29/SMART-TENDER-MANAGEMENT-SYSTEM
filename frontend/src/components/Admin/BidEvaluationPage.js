@@ -95,9 +95,10 @@ const BidEvaluationPage = () => {
 
             // Post the evaluation score to the database
             await axios.post(`http://localhost:5000/api/bids/${bid._id}/evaluation`, {
-              evaluationScore,
+              evaluationScore: evaluationScore.toFixed(3),  // Format score to 3 decimal places
               comments: 'Evaluated',
             });
+            
 
             // Return the bid with its calculated evaluation score
             return { ...bid, evaluationScore };
@@ -184,7 +185,7 @@ const BidEvaluationPage = () => {
       Swal.fire({
         icon: 'success',
         title: 'Bid Approved',
-        text: 'The bid has been successfully approved and email is sent.',
+        text: 'The bid has been successfully Approved and Email is sent To Respective Bidder.',
       }).then(() => {
         // Reload the page
         window.location.reload();
