@@ -9,15 +9,12 @@ const bidEvaluationSchema = new mongoose.Schema({
         ref: 'Bid', // This links to the 'Bid' model
         required: true 
     },
-    ratings: {
-        bidAmount: { type: Number, default: 0 },
-        timeliness: { type: Number, default: 0 },
-        quality: { type: Number, default: 0 },
-        reliability: { type: Number, default: 0 },
-    },
     comments: { type: String, default:''}, // Single comment field for simplicity
     evaluationScore:{
         type: Number
+    },
+    evaluationStatus:{
+        type: String
     },
     createdAt: { type: Date, default: Date.now }
 });

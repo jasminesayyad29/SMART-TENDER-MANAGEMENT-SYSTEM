@@ -4,87 +4,78 @@ import { useParams, useNavigate } from 'react-router-dom';
 import './AllBidDetails.css';
 
 const AllBidDetails = () => {
-  const { tenderId, email } = useParams(); // Get tenderId or email from the URL
+  const { bidId } = useParams(); // Get bidId from the URL
   const navigate = useNavigate(); // Use navigate to go back to the previous page
   const [bidData, setBidData] = useState([]);
   const [quotationData, setQuotationData] = useState(null);
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(true); // Start with the modal open
 
- // Fetch bid details by tender ID or email
-// Fetch bid details by tender ID or email
+// Fetch bid details by bidId
 const fetchBidDetails = async () => {
-    try {
-      let response;
-      if (tenderId) {
-        response = await axios.get(`http://localhost:5000/api/bids/tender/${tenderId}`);
-      } else if (email) {
-        response = await axios.get(`http://localhost:5000/api/bids/email/${email}`);
-      } else {
-        setError('Please provide either a Tender ID or Email.');
+  try {
+    if (bidId) {
+      // Fetch bid details using bidId
+      const response = await axios.get(`http://localhost:5000/api/bids/id/${bidId}`);
+      const bid = response.data;
+      if (!bid) {
+        setError('Bid not found for the provided Bid ID.');
         return;
       }
-  
-      const data = response.data;
-  
-      // Add status logic based on expiryDate
+
+      // Calculate status based on expiryDate
       const today = new Date();
-      data.forEach((bid) => {
-        const expiryDate = bid.expiryDate ? new Date(bid.expiryDate) : null;
-        bid.status = expiryDate && expiryDate >= today ? 'Active' : 'Inactive';
-      });
-  
-      setBidData(data); // Store the fetched bid data
-  
-      // Extract BidderPropAmount and include in quotationData
-      let bidderAmounts = [];
-      if (data.length > 0) {
-        bidderAmounts = tenderId
-          ? data.filter(bid => bid.tenderId === tenderId).map(bid => bid.BidderPropAmount).flat()
-          : [];
-      }
-  
-      // Fetch quotation details if tenderId is not directly provided
-      const targetTenderId = tenderId || (data.length > 0 ? data[0].tenderId : null);
-      if (targetTenderId) {
-        await fetchQuotationDetails(targetTenderId, bidderAmounts);
-      }
-    } catch (error) {
-      console.error('Error fetching bid details:', error);
-      setError('Failed to fetch bid details. Please check the provided ID or Email.');
+      const endDate = bid.expiryDate ? new Date(bid.expiryDate) : null;
+      const bidStatus = endDate && endDate >= today ? 'Active' : 'Inactive';
+
+      // Set status in bidData
+      setBidData([{ ...bid, status: bidStatus }]); // Store the bid with status
+
+      // Fetch quotation details using tenderId and BidderPropAmount as an array
+      const bidderPropAmountArray = Array.isArray(bid.BidderPropAmount) ? bid.BidderPropAmount : [bid.BidderPropAmount];
+      await fetchQuotationDetails(bid.tenderId, bidderPropAmountArray);
+    } else {
+      setError('Please provide a Bid ID.');
+      return;
     }
-  };
+  } catch (error) {
+    console.error('Error fetching bid details:', error);
+    setError('Failed to fetch bid details. Please check the provided Bid ID.');
+  }
+};
 
-// Fetch quotation details from tender schema
-const fetchQuotationDetails = async (targetTenderId, bidderAmounts) => {
-    try {
-      const response = await axios.get(`http://localhost:5000/api/tenders/id/${targetTenderId}`);
-      const data = response.data;
 
-    // Add status logic based on endDate
-const today = new Date();
-const endDate = data?.endDate ? new Date(data.endDate) : null;
-if (endDate && endDate >= today) {  // Check if endDate is today or later
-  data.status = 'Active';
-} else {
-  data.status = 'Inactive';
-}
+  // Fetch quotation details from tender schema
+ // Fetch quotation details from tender schema
+const fetchQuotationDetails = async (targetTenderId, bidderAmounts, bidExpiryDate) => {
+  try {
+    const response = await axios.get(`http://localhost:5000/api/tenders/id/${targetTenderId}`);
+    const data = response.data;
 
-      // Include BidderPropAmount in quotationData
-      setQuotationData({
-        ...data,
-        BidderPropAmount: bidderAmounts,
-      });
-    } catch (error) {
-      console.error('Error fetching quotation details:', error);
-      setError('Failed to fetch quotation details.');
-    }
-  };
+    // Add status logic based on bidExpiryDate and today's date
+    const today = new Date();
+    const endDate = bidExpiryDate ? new Date(bidExpiryDate) : null;
+    const status = endDate && endDate >= today ? 'Active' : 'Inactive';
+    data.status = status;
+
+    // Include BidderPropAmount in quotationData
+    setQuotationData({
+      ...data,
+      BidderPropAmount: bidderAmounts,
+    });
+
+  } catch (error) {
+    console.error('Error fetching quotation details:', error);
+    setError('Failed to fetch quotation details.');
+  }
+};
+
+  
 
   // Call fetchBidDetails when component mounts
   useEffect(() => {
     fetchBidDetails();
-  }, [tenderId, email]); // Trigger on mount and if tenderId/email changes
+  }, [bidId]); // Trigger on mount and if bidId changes
 
   // Close modal and navigate back to the previous page
   const closeModal = () => {
@@ -172,80 +163,65 @@ if (endDate && endDate >= today) {  // Check if endDate is today or later
                         </a>
                       </div>
                     )}
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                      <label><strong>Status:</strong></label>
-                      <span
-                        style={{
-                          fontWeight: 'bold',
-                          color: bid.status === 'Inactive' ? 'red' : 'green',
-                        }}
-                      >
-                        {bid.status}
-                      </span>
-                    </div>
+                   <div style={{ display: 'flex', gap: '10px' }}>
+  <label><strong>Status:</strong></label>
+  <span
+    style={{
+      fontWeight: 'bold',
+      color: bid.status === 'Inactive' ? 'red' : 'green',
+    }}
+  >
+    {bid.status}
+  </span>
+</div>
+
                   </div>
                 </div>
               ))
             ) : (
-              <div>No bids found for the given ID or Email.</div>
+              <div>No bids found for the given Bid ID.</div>
             )}
 
-   {/* Quotation Details */}
-{quotationData && (
-  <div>
-    <h2 style={{ textAlign: 'left' }}>Quotation Details</h2>
-    <table style={{ textAlign: 'left', width: '100%' }}>
-      <thead>
-        <tr>
-          <th>Materials</th>
-          <th>Quantity</th>
-
-          <th>Proposed Amount</th> {/* Updated column heading */}
-
-
-          <th>Bid Amount</th> {/* Added Bid Amount column */}
-        </tr>
-      </thead>
+            {/* Quotation Details */}
+            {quotationData && (
+              <div>
+                <h2 style={{ textAlign: 'left' }}>Quotation Details</h2>
+                <table style={{ textAlign: 'left', width: '100%' }}>
+                  <thead>
+                    <tr>
+                      <th>Materials</th>
+                      <th>Quantity</th>
+                      <th>Proposed Amount</th>
+                      <th>Bid Amount</th>
+                    </tr>
+                  </thead>
 
 
-      <tbody>
+       <tbody>
   {quotationData.materials &&
     quotationData.materials.map((material, index) => (
       <tr key={index}>
         <td>{material}</td>
         <td>{quotationData.quantity[index]}</td>
         <td>{quotationData.TenderPropAmount[index]}</td>
-        <td>
-          {quotationData.BidderPropAmount ? (
-            <span style={{ fontWeight: 'bold' }}>
-              {quotationData.BidderPropAmount[index]}
-            </span>
-          ) : (
-            'N/A'
-          )}
-        </td>
+        <td>{quotationData.BidderPropAmount[index] || 'N/A'}</td>
       </tr>
     ))}
 </tbody>
 
 
-    </table>
- 
-
-   
-<div className='subAmou'>
-                <div className="total-quotation" style={{ textAlign: 'left' }}>
-                  <strong>Total Quotation Amount: </strong>
-                  {quotationData?.Totalquotation}
-                </div>
-                <div className="total-bid-amount" style={{ textAlign: 'left' }}>
-  <strong>Total Bid Amount: </strong>
-  {/* Fetch and display Total Bid Amount */}
-  {bidData.length > 0 ? bidData[0].bidAmount : 'N/A'} {/* Assuming bidAmount is part of the bid schema */}
-</div>
 
 
-
+                </table>
+                <div className="subAmou">
+                  <div className="total-quotation" style={{ textAlign: 'left' }}>
+                    <strong>Total Quotation Amount: </strong>
+                    {quotationData?.Totalquotation}
+                  </div>
+                  <div className="total-bid-amount" style={{ textAlign: 'left' }}>
+                    <strong>Total Bid Amount: </strong>
+                    {bidData.length > 0 ? bidData[0].bidAmount : 'N/A'}
+                  </div>
                 </div>
               </div>
             )}

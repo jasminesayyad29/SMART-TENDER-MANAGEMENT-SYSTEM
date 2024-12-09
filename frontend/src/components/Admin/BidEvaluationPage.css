@@ -1,231 +1,193 @@
-/* General page container */
-.bep-container {
-  font-family: Arial, sans-serif;
-  margin: 20px;
-  padding: 20px;
-  background-color: #f4f4f9;
+/* General container for the bid evaluation page */
+.bid-evaluation-container {
+  margin: 30px;
+  padding: 30px;
+  font-family: 'Roboto', sans-serif;
+  background-color: #f9f9f9;
   border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Header style */
-.bep-header {
-  text-align: center;
+/* Table styling */
+.tender-table, .bids-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tender-table th, .tender-table td, .bids-table th, .bids-table td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+  transition: all 0.3s ease;
+}
+
+.tender-table th, .bids-table th {
+  background-color: #4CAF50;
+  color: white;
+  text-transform: uppercase;
+}
+
+.tender-table td, .bids-table td {
+  font-size: 14px;
   color: #333;
 }
 
-.bep-header h1 {
-  font-size: 36px;
-  margin-bottom: 20px;
-}
-
-/* Controls section */
-.bep-controls {
-  margin-bottom: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.bep-controls select {
-  padding: 8px;
-  font-size: 16px;
-}
-
-.bep-controls label {
-  font-size: 16px;
-  margin-right: 10px;
-}
-
-/* Modified Export to CSV button */
-.bep-controls .csv-link {
-  display: inline-block; /* Make it inline-block to allow for padding and margins */
-  background-color: #4b275f; /* Green background for a fresh look */
-  color: white; /* White text */
-  padding: 1px 50px; /* Increased padding for a more prominent button */
-  margin-left: 15px;
-  width: fit-content;
-  border-radius: 40px; /* Round the corners */
-  font-size: 20px; /* Larger text for better visibility */
-  font-weight: bold; /* Bold text */
-  text-align: center; /* Center the text */
-  text-decoration: none; /* Remove underline */
-  transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s; /* Add transitions for background, hover effect, and shadow */
-}
-
-.bep-controls .csv-link:hover {
-  background-color: #218838; /* Darker green when hovered */
-  transform: scale(1.05); /* Slightly enlarge the button on hover */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add subtle shadow on hover */
-}
-
-.bep-controls .csv-link:active {
-  background-color: #1e7e34; /* Even darker green on click */
-  transform: scale(1); /* Reset scale when clicked */
-  box-shadow: none; /* Remove shadow when clicked */
-}
-
-.csv-link svg {
-  margin-right: 10px;  /* Adjust the spacing as needed */
-}
-
-/* Table styles */
-.bep-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-.bep-table th, .bep-table td {
-  padding: 12px;
-  text-align: left;
-  border: 1px solid #ddd;
-}
-
-.bep-table th {
-  background-color: #09830d;
+/* Styling for buttons */
+button {
+  background-color: #007bff;
   color: white;
-}
-
-.bep-table tr:nth-child(even) {
-  background-color: #f2f2f2;
-}
-
-/* Button styles */
-/* Modify the color of the buttons based on their text */
-.bep-button {
-  padding: 8px 12px;
-  background-color: #007BFF; /* Default color (blue) for other buttons */
-  color: white;
+  padding: 8px 15px;
   border: none;
-  border-radius: 40px; /* Round the corners for all buttons */
+  border-radius: 4px;
   cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s, transform 0.3s;
 }
 
-.bep-button:hover {
+button:hover {
   background-color: #0056b3;
+  transform: scale(1.05);
 }
 
-.bep-button:disabled {
-  background-color: #ccc;
+button:disabled {
+  background-color: #ddd;
   cursor: not-allowed;
 }
 
-/* Specific styles for the "View Bids" button */
-.bep-button.view-bids {
-  background-color: #007BFF; /* Blue for View Bids */
+/* Add animation when expanding rows */
+.bids-table {
+  transition: max-height 0.3s ease-in-out;
+  overflow: hidden;
 }
 
-.bep-button.view-bids:hover {
-  background-color: #0056b3;
-}
-
-/* Specific styles for the "Hide Bids" button */
-.bep-button.hide-bids {
-  background-color: #6c757d; /* Grey for Hide Bids */
-}
-
-.bep-button.hide-bids:hover {
-  background-color: #5a6268;
-}
-
-/* Modal styles */
-/* Modal styles */
-/* Modal styles */
-.bep-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7); /* Darker overlay */
-  display: none;  /* Hide by default */
-  justify-content: center;
-  align-items: center;
-  transition: opacity 0.3s ease;
-}
-
-.bep-modal.open {
-  display: flex;  /* Make visible when the 'open' class is added */
-  opacity: 1;
-}
-
-/* Decrease the size of the modal */
-.bep-modal-content {
-  background-color: #ffffff;
-  padding: 20px;  /* Reduced padding */
-  border-radius: 8px; /* Smaller rounded corners */
-  width: 320px;   /* Decrease width */
-  max-width: 100%;
-  height: 450px;  /* Decrease height */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
-  overflow-y: auto;  /* Allows scrolling if content overflows */
-}
-
-.bep-modal-content h2 {
-  font-size: 20px;  /* Decreased font size */
+/* Highlight max score bid row */
+.highlight-max-score td {
+  background-color: #511f98 !important;
   font-weight: bold;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.highlight-max-score td:hover {
+  background-color: #6a1b9a !important;
+}
+
+/* Title and headers */
+h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
   color: #333;
-  margin-bottom: 15px;  /* Reduced margin */
+}
+
+h3.highlight-max-score {
+  margin-top: 15px;
   text-align: center;
+  color: #511f98;
+  font-size: 18px;
 }
 
-/* Adjust the rating and comment input areas */
-.bep-rating-input,
-.bep-comment-input {
-  margin-bottom: 10px;  /* Reduced margin */
+/* Tooltip for bid details */
+button {
+  position: relative;
 }
 
-.bep-modal .bep-rating-input input {
-  width: 80px;   /* Decrease width of rating input */
+button::after {
+  /* content: 'Click to approve this bid'; */
+  font-size: 12px;
+  position: absolute;
+  top: -30px;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
   padding: 5px;
-  font-size: 14px;  /* Smaller font size */
+  border-radius: 4px;
+  display: none;
+}
+
+button:hover::after {
+  display: block;
+}
+
+/* Smooth transitions and hover effects for tender rows */
+.tender-table tr {
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.tender-table tr:hover {
+  background-color: #f1f1f1;
+  transform: translateX(5px);
+}
+
+/* Stylish input fields for future use */
+input, select, textarea {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  transition: border 0.3s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* Loader styling */
+.loading-spinner {
+  margin-top: 20px;
+  font-size: 18px;
+  color: #007bff;
   text-align: center;
 }
- 
-.bep-modal .bep-comment-input textarea {
-  width: 100%;
-  height: 60px;  /* Smaller height */
-  padding: 6px;
-  font-size: 14px;  /* Smaller font size */
-  border: 1px solid #ddd;
-  border-radius: 4px;
+
+/* SweetAlert2 modal customization */
+.swal2-popup {
+  background-color: #f8f9fa;
+  font-family: 'Roboto', sans-serif;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Adjust the buttons to match the smaller modal */
-.bep-modal .bep-button {
-  width: 100%;
-  padding: 8px 0;
-  font-size: 14px;  /* Smaller text size */
-  margin-top: 10px;
+.swal2-title {
+  color: #333;
+  font-weight: 600;
 }
 
-.bep-modal .bep-button-close {
-  background-color: #f44336;
-  margin-top: 5px;  /* Reduced margin */
+.swal2-confirm {
+  background-color: #4CAF50;
+  color: white;
 }
 
-.bep-modal .bep-button-close:hover {
-  background-color: #d32f2f;
-}
-/* Adjust the close button to be centered */
-/* Adjust the close button to match the submit button styling */
-.bep-modal .bep-button-close {
-  background-color: #f44336;  /* Red color for close button */
-  color: white;  /* White text for contrast */
-  width: 50%;  /* Full width */
-  margin-left: 70px;
-  justify-content: center;
-  padding: 10px 0;  /* Padding similar to submit button */
-  font-size: 16px;  /* Same font size as submit button */
-  font-weight: bold;  /* Bold text like the submit button */
-  border-radius: 40px;  /* Rounded corners */
-  border: none;  /* No border */
-  cursor: pointer;  /* Pointer cursor on hover */
-  text-align: center;  /* Center text */
-  margin-top: 10px;  /* Margin for spacing */
+.swal2-confirm:hover {
+  background-color: #45a049;
 }
 
-/* Adjust hover effect for close button */
-.bep-modal .bep-button-close:hover {
-  background-color: #d32f2f;  /* Darker red on hover */
+
+.Only-Viewed-Bids-Would-Be-Included-In-This-Sheet{
+  margin-left: 10px;
+  margin-top: 50px !important;
+  display: flex !important;
+}
+.export-csv-button{
+  background-color: #007bff;
+  color: white;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 40px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.3s, transform 0.3s;
+  margin-left: 10px;
+
+}
+
+
+.export-csv-button:hover {
+  background-color: #0056b3;
 }

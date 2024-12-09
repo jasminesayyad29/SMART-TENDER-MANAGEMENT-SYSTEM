@@ -1,35 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { fetchTendersbymail, fetchBidsByTenderId, fetchScoreByBidId } from '../../services/tenderService';
-import { CSVLink } from "react-csv";
-import './BidEvaluationPage.css';
-import Swal from 'sweetalert2';
+import { fetchTendersbymail, fetchBidsByTenderId } from '../../services/tenderService';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import Swal from 'sweetalert2'; // Import SweetAlert2
 import emailjs from 'emailjs-com'; // Import EmailJS
+import { json2csv } from 'json2csv'; // Import json2csv for CSV export
+import { parse } from 'json2csv'; // Import json2csv
 
+
+
+
+import './BidEvaluationPage.css';
 
 const BidEvaluationPage = () => {
   const [tenders, setTenders] = useState([]);
-  const [bids, setBids] = useState([]);
+  const [bids, setBids] = useState({});
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedBid, setSelectedBid] = useState(null);
-  const [comments, setComments] = useState({});
-  const [sortCriterion, setSortCriterion] = useState('bidAmount');
-  const [bidError, setBidError] = useState(null);
-  const [fetchedBidsForTender, setFetchedBidsForTender] = useState(new Set());
-  const [noBidsModalOpen, setNoBidsModalOpen] = useState(false);
-  const [noBidsMessage, setNoBidsMessage] = useState('');
-  const [bidScores, setBidScores] = useState({}); // New state for scores
-  const [visibleBids, setVisibleBids] = useState({}); // Tracks visibility for each tender
-  const [acceptedBids, setAcceptedBids] = useState({}); // New state to track accepted bids
+  const [error, setError] = useState(null);
+  const [expandedTender, setExpandedTender] = useState(null); // Tracks the expanded tender for bid view
+  const navigate = useNavigate();
 
-
-  const criteria = [
-    { name: 'bidAmount', weight: 0.4 },
-    { name: 'timeliness', weight: 0.2 },
-    { name: 'quality', weight: 0.2 },
-    { name: 'reliability', weight: 0.2 },
-  ];
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
@@ -43,18 +34,8 @@ const BidEvaluationPage = () => {
 
     const getTenders = async () => {
       try {
-        const tendersData = await fetchTendersbymail(email);
-        const updatedTenders = tendersData.map((tender) => {
-          const endDate = new Date(tender.endDate);
-          const currentDate = new Date();
-
-          if (endDate < currentDate && tender.status !== 'Inactive') {
-            return { ...tender, status: 'Inactive' };
-          }
-          return tender;
-        });
-
-        setTenders(updatedTenders);
+        const data = await fetchTendersbymail(email);
+        setTenders(data);
       } catch (err) {
         setError(`Failed to fetch tenders: ${err.message || err}`);
       } finally {
@@ -65,401 +46,377 @@ const BidEvaluationPage = () => {
     getTenders();
   }, []);
 
-  const getBidsForTender = async (tenderId) => {
-    if (visibleBids[tenderId]) {
-      // If bids are already visible, hide them by setting it to false
-      setVisibleBids((prevState) => ({ ...prevState, [tenderId]: false }));
+
+  const handleToggleBids = async (tenderId) => {
+    if (expandedTender === tenderId) {
+      // Collapse bids for the tender
+      setExpandedTender(null);
     } else {
-      // If bids are not visible, fetch them and show them
-      if (!fetchedBidsForTender.has(tenderId)) {
-        try {
-          const fetchedBids = await fetchBidsByTenderId(tenderId);
+      try {
+        // Fetch bids for the tender
+        const fetchedBids = await fetchBidsByTenderId(tenderId);
+        console.log("Fetched Bids:", fetchedBids);
 
-          if (fetchedBids.length === 0) {
-            setNoBidsMessage('No Bids for this Tender Yet');
-            setNoBidsModalOpen(true);
-          }
+        // Get the tender's TenderPropAmount
+        const tender = tenders.find((tender) => tender._id === tenderId);
+        const tenderPropAmounts = tender?.TenderPropAmount || [];
+        console.log("TenderPropAmounts:", tenderPropAmounts);
 
-          setBids((prevBids) => [
-            ...prevBids,
-            ...fetchedBids.map((bid) => ({ ...bid, tenderId })),
-          ]);
+        // Process each bid
+        const bidsWithScores = await Promise.all(
+          fetchedBids.map(async (bid) => {
+            try {
+              const response = await axios.get(`http://localhost:5000/api/bids/${bid._id}/evaluation`);
+              if (response.data?.comments === "Evaluated") {
+                return { ...bid, evaluationScore: response.data.evaluationScore, evaluationStatus: response.data.evaluationStatus };
+              }
+            } catch (error) {
+              if (error.response?.status !== 404) {
+                console.error(`Error fetching evaluation for bid ${bid._id}:`, error);
+                return { ...bid, evaluationScore: 'Error Fetching Evaluation', evaluationStatus: 'Error' };
+              }
+            }
 
-          setFetchedBidsForTender((prev) => new Set(prev.add(tenderId)));
 
-          // Fetch and set scores for each bid
-          fetchedBids.forEach((bid) => fetchAndSetBidScore(bid._id));
-        } catch (err) {
-          setBidError("Failed to fetch bids for this tender.");
-        }
+            // If not evaluated, calculate the evaluation score
+            const bidderPropAmounts = bid.BidderPropAmount || [];
+            console.log(`BidderPropAmounts for Bid ${bid._id}:`, bidderPropAmounts);
+
+
+            const evaluationScore = tenderPropAmounts.reduce((acc, tenderAmount, index) => {
+              const bidderAmount = bidderPropAmounts[index] || 0;
+              const ratio = bidderAmount > 0 ? tenderAmount / bidderAmount : 0;
+              return acc + Math.max(ratio, 1); // Using Math.max ensures a score of at least 1
+            }, 0);
+
+
+
+            console.log(`Evaluation Score for Bid ${bid._id}:`, evaluationScore);
+
+            // Post the evaluation score to the database
+            await axios.post(`http://localhost:5000/api/bids/${bid._id}/evaluation`, {
+              evaluationScore,
+              comments: 'Evaluated',
+            });
+
+            // Return the bid with its calculated evaluation score
+            return { ...bid, evaluationScore };
+          })
+        );
+
+        // After fetching bidsWithScores
+        const maxScoreBid = bidsWithScores.reduce((maxBid, currentBid) => {
+          return currentBid.evaluationScore > maxBid.evaluationScore ? currentBid : maxBid;
+        }, { evaluationScore: -Infinity });
+
+
+        // Update the bids state with the processed bids
+        setBids((prevBids) => ({
+          ...prevBids,
+          [tenderId]: bidsWithScores,
+        }));
+
+        setExpandedTender(tenderId); // Expand the tender
+      } catch (err) {
+        console.error(`Failed to fetch or process bids for tender ${tenderId}:`, err);
+      }
+    }
+  };
+
+  
+  
+  
+
+  const handleApproveBid = async (tenderId, bidId) => {
+    try {
+      const bidsForTender = bids[tenderId];
+      const tender = tenders.find((t) => t._id === tenderId);
+      const bidToApprove = bidsForTender.find((bid) => bid._id === bidId);
+      console.log("BidToApprove:", bidToApprove);
+      if (!tender || !bidToApprove) {
+        throw new Error('Tender or Bid details not found.');
       }
 
-      // Toggle visibility of bids
-      setVisibleBids((prevState) => ({ ...prevState, [tenderId]: true }));
-    }
-  };
-  const getBidScore = async (bidId) => {
-    try {
-      const evaluationData = await fetchScoreByBidId(bidId);
-      if (evaluationData) {
-        const score = evaluationData.evaluationScore || 0;
-        const comment = evaluationData.comments || ''; // Fetch comment
-        return { score, comment };
-      } else {
-        return { score: 0, comment: '' };
-      }
-    } catch (error) {
-      console.error('Error fetching bid evaluation:', error);
-      return { score: 0, comment: '' };
-    }
-  };
-  
-  const fetchAndSetBidScore = async (bidId) => {
-    const { score, comment } = await getBidScore(bidId);
-    setBidScores((prevScores) => ({ ...prevScores, [bidId]: score }));
-    setComments((prevComments) => ({ ...prevComments, [bidId]: comment })); // Store comment in state
-  };
-  
-  const handleRowClick = (bid) => {
-    setSelectedBid(bid);
-    setModalOpen(true);
-  };
+      // Update all bids for the tender to "Rejected"
+      await Promise.all(
+        bidsForTender.map((bid) =>
+          axios.put(`http://localhost:5000/api/bids/${bid._id}/evaluation`, {
+            evaluationStatus: 'Rejected',
+          })
+        )
+      );
 
-  const handleRateBid = (criterion, rating) => {
-    if (rating < 1 || rating > 10) {
-      Swal.fire({
-        title: "Rating must be between 1 and 10",
-        icon: "error",
-        confirmButtonText: "OK"
+      // Update the selected bid to "Approved"
+      await axios.put(`http://localhost:5000/api/bids/${bidId}/evaluation`, {
+        evaluationStatus: 'Approved',
       });
-      return;
-    }
-    setSelectedBid((prevBid) => ({
-      ...prevBid,
-      ratings: { ...prevBid.ratings, [criterion]: rating }
-    }));
-  };
 
-  const handleEvaluateClick = (bid) => {
-    setSelectedBid(bid); // Set the bid to be evaluated
-    setModalOpen(true);  // Open the modal
-  };
-
-
-  const handleCommentChange = (comment) => {
-    setComments((prevComments) => ({ ...prevComments, [selectedBid._id]: comment }));
-  };
-
-  const submitEvaluation = async () => {
-    if (!selectedBid || !selectedBid.ratings) {
-      Swal.fire({
-        title: "Please rate all criteria before submitting.",
-        icon: "error",
-        confirmButtonText: "OK"
-      });
-      return;
-    }
-  
-    const evaluationData = {
-      ratings: selectedBid.ratings,
-      id: selectedBid._id,
-      bidId: selectedBid.bidId,
-      comments: comments[selectedBid._id] || "",
-      evaluationScore: evaluateBid(selectedBid),
-      createdAt: new Date().toISOString(),
-      _v: 0
-    };
-  
-    try {
-      const response = await fetch(`http://localhost:5000/api/bids/${selectedBid._id}/evaluate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(evaluationData),
-      });
-  
-      if (!response.ok) throw new Error('Failed to submit evaluation');
-  
-      // Close the modal
-      setModalOpen(false);
-  
-      // Show success message
-      Swal.fire({
-        title: "Evaluation submitted successfully!",
-        icon: "success",
-        confirmButtonText: "OK"
-      }).then(() => {
-        // This will execute after the alert is closed by the user
-        window.location.reload(); // Reload the page to reflect changes
-      });
-    } catch (error) {
-      setError('Failed to submit evaluation. Please try again later.');
-      Swal.fire({
-        title: "Failed to submit evaluation.",
-        text:"Please Try Again",
-        icon: "error",
-        confirmButtonText: "OK"
-      });
-      console.error('Error submitting evaluation:', error);
-    }
-  };
-  
-  const evaluateBid = (evaluationData) => {
-    const bidAmountScore = evaluationData.ratings?.bidAmount || 0;
-    const timelinessScore = evaluationData.ratings?.timeliness || 0;
-    const qualityScore = evaluationData.ratings?.quality || 0;
-    const reliabilityScore = evaluationData.ratings?.reliability || 0;
-
-    const evaluationScore = (bidAmountScore * 0.40) +
-      (timelinessScore * 0.20) +
-      (qualityScore * 0.20) +
-      (reliabilityScore * 0.20);
-
-    return evaluationScore.toFixed(2);
-  };
-
-  const sortedBids = [...bids].sort((a, b) => a[sortCriterion] - b[sortCriterion]);
-  const exportToCSV = () => {
-    const csvData = sortedBids.map((bid) => {
-      const tender = tenders.find(tender => tender._id === bid.tenderId);
-  
-      return {
-        "Bid_id": bid._id,
-        "Tender ID": bid.tenderId,
-        "Tender Title": tender ? tender.title : 'N/A',
-        "Bidder Name": bid.bidderName,
-        "Company Name": bid.companyName,
-        "Company Reg Number": bid.companyRegNumber,
-        "Email": bid.email,
-        "Bidder Contact": bid.phoneNumber,
-        "Bid Amount": bid.bidAmount,
-        "Description": bid.description,
-        "Additional Notes": bid.additionalNotes,
-        "Expiry Date": new Date(bid.expiryDate).toLocaleDateString(),
-        "Created At": new Date(bid.createdAt).toLocaleDateString(),
-        "Evaluation Score": bidScores[bid._id] || 'Not Scored',
-        "Status": bidScores[bid._id] && bidScores[bid._id] > 6 ? '✔' : bidScores[bid._id] ? '❌' : 'N/A',
-        "Comments": comments[bid._id] || '', // Include Comments fetched from the database
+      // Prepare email parameters
+      const emailParams = {
+        tender_id: tender._id,
+        tender_title: tender.title,
+        tender_eligibility: tender.eligibility || 'N/A',
+        tender_description: tender.description || 'N/A',
+        tender_type: tender.type || 'N/A',
+        tender_startDate: tender.startDate,
+        tender_endDate: tender.endDate,
+        bid_id: bidToApprove._id,
+        bidder_name: bidToApprove.bidderName,
+        bidder_email: bidToApprove.email,
+        bid_amount: bidToApprove.bidAmount,
+        evaluation_score: bidToApprove.evaluationScore || 'N/A',
       };
-    });
-  
-    return csvData;
-  };
-  
 
+      // Log email parameters before sending
+      console.log('Email Parameters:', emailParams);
 
-  // EmailJS function to send the acceptance email
-  const sendAcceptanceEmail = (bid, tender) => {
-    emailjs.send(
-      'service_vnehurc', // replace with your EmailJS service ID
-      'template_3pxnu0p', // replace with your EmailJS template ID
-      {
-        "tender_id": tender._id,
-        "tender_title": tender.title,
-        "tender_eligibility": tender.eligibility,
-        "tender_description": tender.description,
-        "tender_type": tender.type,
-        "tender_startDate": new Date(tender.startDate).toLocaleDateString(),
-        "tender_endDate": new Date(tender.endDate).toLocaleDateString(),
-        "bid_id": bid._id,
-        "bidder_name": bid.bidderName,
-        "bidder_email": bid.email,
-        "bid_amount": bid.bidAmount,
-      },
-      'fn2uxIMhd1q5E1SW9' // replace with your EmailJS user ID
-    ).then((response) => {
+      // Send email using EmailJS
+      emailjs
+        .send('service_vnehurc', 'template_3pxnu0p', emailParams, 'fn2uxIMhd1q5E1SW9')
+        .then(() => {
+          console.log('Email sent successfully.');
+        })
+        .catch((error) => {
+          console.error('Failed to send email:', error);
+        });
+
+      // Show SweetAlert notification
       Swal.fire({
-        title: "Email Sent!",
-        text: "Acceptance email has been sent successfully.",
-        icon: "success",
-        confirmButtonText: "OK"
+        icon: 'success',
+        title: 'Bid Approved',
+        text: 'The bid has been successfully approved and email is sent.',
+      }).then(() => {
+        // Reload the page
+        window.location.reload();
       });
-    }).catch((error) => {
-      console.error("Failed to send email:", error);
+    } catch (err) {
+      console.error(`Failed to approve bid for tender ${tenderId}:`, err);
+
+      // Show error SweetAlert notification
       Swal.fire({
-        title: "Failed to Send Email",
-        text: "There was an error sending the acceptance email.",
-        icon: "error",
-        confirmButtonText: "OK"
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to approve the bid. Please try again later.',
       });
-    });
+    }
   };
 
+
+  const formatDate = (date) => {
+    const parsedDate = new Date(date);
+    return isNaN(parsedDate.getTime()) ? 'Invalid Date' : parsedDate.toLocaleDateString();
+  };
+
+
+  const handleExportToCSV = () => {
+    // Flatten all tender and bid data into a single array
+    const allTendersBids = tenders.flatMap((tender) => {
+      const tenderBids = bids[tender._id] || [];
+      
+      // First, prepare the tender details row with all the fields from the schema
+      const tenderDetails = [{
+        TenderID: tender._id,
+        Email: tender.email,
+        TenderTitle: tender.title,
+        Eligibility: tender.eligibility,
+        TenderDescription: tender.description || 'N/A',
+        TenderType: tender.type,
+        TenderStatus: tender.status,
+        TenderStartDate: tender.startDate,
+        TenderEndDate: tender.endDate,
+        Materials: tender.materials.join(', ') || 'N/A', // Join materials array into a string
+        Quantity: tender.quantity.join(', ') || 'N/A', // Join quantity array into a string
+        TenderPropAmount: tender.TenderPropAmount.join(', ') || 'N/A', // Join TenderPropAmount array into a string
+        TotalQuotation: tender.Totalquotation,
+        BidID: '', // Empty since it's for the tender row
+        BidderName: '', // Empty since it's for the tender row
+        BidAmount: '', // Empty since it's for the tender row
+        BidExpiryDate: '', // Empty since it's for the tender row
+        EvaluationScore: '', // Empty since it's for the tender row
+        EvaluationStatus: '', // Empty since it's for the tender row
+        CompanyName: '', // Empty for tender row
+        CompanyRegNumber: '', // Empty for tender row
+        BidderEmail: '', // Empty for tender row
+        BidderPhoneNumber: '', // Empty for tender row
+        Description: '', // Empty for tender row
+        AdditionalNotes: '', // Empty for tender row
+        BidderPropAmount: '', // Empty for tender row
+      }];
+      
+      // Now, prepare the bid details for each bid under this tender
+      const bidDetails = tenderBids.map((bid) => ({
+        BidID: bid._id,
+        BidderName: bid.bidderName,
+        BidAmount: bid.bidAmount,
+        BidExpiryDate: bid.expiryDate,
+        EvaluationScore: bid.evaluationScore ? bid.evaluationScore.toFixed(3) : 'N/A',
+        EvaluationStatus: bid.evaluationStatus || 'N/A',
+        CompanyName: bid.companyName,
+        CompanyRegNumber: bid.companyRegNumber || 'N/A',
+        BidderEmail: bid.email,
+        BidderPhoneNumber: bid.phoneNumber,
+        Description: bid.description,
+        AdditionalNotes: bid.additionalNotes || 'N/A',
+        BidderPropAmount: bid.BidderPropAmount.join(', ') || 'N/A', // Join BidderPropAmount array into a string
+      }));
+  
+      // Return both tender details row and bid details rows, with tender row at the top
+      return tenderDetails.concat(bidDetails);
+    });
+  
+    try {
+      // Parse the data to CSV format
+      const csv = parse(allTendersBids);
+      
+      // Create a Blob from the CSV string
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      
+      // Create a link element to trigger the download
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'tender._id.csv';  // Name of the file
+      link.click(); // Trigger the download
+    } catch (error) {
+      console.error("Error exporting to CSV:", error);
+    }
+  };
+  
+  
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
 
-
   return (
-    <div className="bep-container">
-      <h1 className="bep-header">Bid Evaluation</h1>
-      <h4 className="bep-header" style={{ color: 'red', fontWeight: 'bold' }}>View The Bids To Be Included in the Csv File and click Export Here 👉 </h4>
-      <div className="bep-controls">
-        <label>Sort By: </label>
-        <select onChange={(e) => setSortCriterion(e.target.value)}>
-          <option value="bidAmount">Bid Amount</option>
-          <option value="timeliness">Timeliness</option>
-          <option value="quality">Quality</option>
-          <option value="reliability">Reliability</option>
-        </select>
-        <CSVLink
-          data={exportToCSV()}
-          filename={`bid-evaluation-for-${JSON.parse(localStorage.getItem('user'))?.email || 'unknown'}.csv`}
-          className="csv-link"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-file-earmark-csv" viewBox="0 0 16 16">
-            <path d="M13 0H3a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM7.5 12a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5h-1zM6 9h2a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5V9a.5.5 0 0 1 .5-.5zM12 9h1a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5V9a.5.5 0 0 1 .5-.5zM9.5 12a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5h-1z" />
-          </svg>
-          Export to CSV
-        </CSVLink>
+    <div className="bid-evaluation-container">
+      <h2>Bid Evaluation</h2>
+    
 
-      </div>
+      <table className="tender-table">
+        <thead>
+          <tr>
+            <th>Sr. No.</th>
+            <th>Tender ID</th>
+            <th>Title</th>
+            <th>Total Quotation Amount</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tenders.length > 0 ? (
+            tenders.map((tender, index) => (
+              <React.Fragment key={tender._id}>
+                {/* Tender Row */}
+                <tr>
+                  <td>{index + 1}</td>
+                  <td>{tender._id}</td>
+                  <td>{tender.title}</td>
+                  <td>{tender.Totalquotation ? tender.Totalquotation : 'N/A'}</td>
+                  <td>{formatDate(tender.startDate)}</td>
+                  <td>{formatDate(tender.endDate)}</td>
+                  <td>{tender.status}</td>
+                  <td>
+                    <button onClick={() => handleToggleBids(tender._id)}>
+                      {expandedTender === tender._id ? 'Hide Bids' : 'View Bids'}
+                    </button>
+                  </td>
+                </tr>
 
-      {tenders.length > 0 ? (
-        <table className="bep-table">
-          <thead>
+                {/* Bid Details Row */}
+                {expandedTender === tender._id && (
+
+                  <tr>
+                    <td colSpan="8">                                 <h3 className='highlight-max-score'>※ Suggested Bid Is Highlighted</h3>  
+
+                      {bids[tender._id]?.length > 0 ? (
+                        <table className="bids-table">
+
+                          <thead>
+                            <tr>
+                              <th>Bid ID</th>
+                              <th>Bidder Name</th>
+                              <th>Total Bid Amount</th>
+                              <th>Expiry Date</th>
+                              <th>Quotation</th>
+                              <th>Evaluation Score</th>
+                              <th>Status</th> {/* Add this column for Status */}
+
+
+
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {bids[tender._id].map((bid) => {
+                              // Find the bid with the highest score
+                              const maxScoreBid = bids[tender._id].reduce((maxBid, currentBid) =>
+                                currentBid.evaluationScore > maxBid.evaluationScore ? currentBid : maxBid
+                                , { evaluationScore: -Infinity });
+
+                              const isMaxScoreBid = bid._id === maxScoreBid._id; // Check if this is the highest scored bid
+
+                              return (
+
+                                <tr key={bid._id} className={bid._id === maxScoreBid?._id ? 'highlight-max-score' : ''}>
+
+                                  <td>{bid._id}</td>
+                                  <td>{bid.bidderName}</td>
+                                  <td>{bid.bidAmount}</td>
+                                  <td>{formatDate(bid.expiryDate)}</td>
+
+                                  <td>
+                                    <button onClick={() => navigate(`/bidder/quotation/${bid._id}`)}>Quotation</button>
+                                  </td>
+
+                                  <td>{bid.evaluationScore ? bid.evaluationScore.toFixed(3) : '-'}</td>
+
+                                  <td>
+                                    {typeof bid.evaluationStatus === 'undefined' || bid.evaluationStatus === '' || bid.evaluationStatus === null ? (
+                                      <button onClick={() => handleApproveBid(tender._id, bid._id)}>Approve</button>
+                                    ) : (
+                                      bid.evaluationStatus // Display the status (Approved or Rejected)
+                                    )}
+                                    
+                                  </td>
+
+
+
+                                </tr>
+                                
+
+                              );
+                              
+                            })}
+                          </tbody>
+                      
+                        </table>
+                        
+                      ) : (
+                        <p>No bids available for this tender.</p>
+                      )}
+                    </td>
+                    
+                  </tr>
+                )}
+              </React.Fragment>
+            ))
+          ) : (
             <tr>
-              <th>Tender Title</th>
-              <th>Start Date</th>
-              <th>End Date</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <td colSpan="8">No tenders available</td>
             </tr>
-          </thead>
-          <tbody>
-            {tenders.map((tender) => (
-              <tr key={tender._id}>
-                <td>{tender.title}</td>
-                <td>{new Date(tender.startDate).toLocaleDateString()}</td>
-                <td>{new Date(tender.endDate).toLocaleDateString()}</td>
-                <td>{tender.status}</td>
-                <td>
-                  <button
-                    className={`bep-button ${visibleBids[tender._id] ? 'hide-bids' : 'view-bids'}`}
-                    onClick={() => getBidsForTender(tender._id)}
-                  >
-                    {visibleBids[tender._id] ? 'Hide Bids' : 'View Bids'}
-                  </button>
-
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : (
-        <p>No tenders available.</p>
-      )}
-{bids.length > 0 && Object.keys(visibleBids).some((tenderId) => visibleBids[tenderId]) && (
-  <table className="bep-table">
-    <thead>
-      <tr>
-        <th>Tender Title</th>
-        <th>Bidder Name</th>
-        <th>Company Name</th>
-        <th>Bid Amount</th>
-        <th>Evaluation Score</th>
-        <th>Status</th>
-        <th>Actions</th>
-        <th>Accept Bid</th>
-      </tr>
-    </thead>
-    <tbody>
-      {sortedBids
-        .filter((bid) => visibleBids[bid.tenderId])
-        .map((bid) => {
-          const tender = tenders.find(tender => tender._id === bid.tenderId);
-          return (
-            <tr key={bid._id}>
-              <td>{tender?.title || 'N/A'}</td>
-              <td>{bid.bidderName}</td>
-              <td>{bid.companyName}</td>
-              <td>{bid.bidAmount}</td>
-              <td>{bidScores[bid._id] ? bidScores[bid._id].toFixed(1) : 'Not Scored'}</td>
-              <td>
-                {bidScores[bid._id] && bidScores[bid._id] > 6 ? (
-                  <span style={{ color: 'green' }}>✔</span>
-                ) : bidScores[bid._id] ? (
-                  <span style={{ color: 'red' }}>❌</span>
-                ) : (
-                  'N/A'
-                )}
-              </td>
-              <td>
-                <button
-                  className="bep-button"
-                  disabled={bidScores[bid._id] && bidScores[bid._id] !== 'Not Scored'}
-                  onClick={() => handleEvaluateClick(bid)}
-                >
-                  Evaluate
-                </button>
-              </td>
-              <td>
-                {bidScores[bid._id] && bidScores[bid._id] > 5 ? (
-                  <button
-                    className="bep-button accept-bid-button"
-                    style={{ color: acceptedBids[bid._id] ? 'grey' : 'initial' }}
-                    disabled={!!acceptedBids[bid._id]} // Disable if accepted
-                    onClick={() => {
-                      sendAcceptanceEmail(bid, tender);
-                      setAcceptedBids((prev) => ({ ...prev, [bid._id]: true })); // Mark bid as accepted
-                    }}
-                  >
-                    Accept Bid
-                  </button>
-                ) : (
-                  <span style={{ color: 'grey' }}>N/A</span>
-                )}
-              </td>
-            </tr>
-          );
-        })}
-    </tbody>
-  </table>
-)}
-
-     {modalOpen && selectedBid && (
-  <div className="bep-modal open">  {/* Add 'open' class when modal is visible */}
-    <div className="bep-modal-content">
-      <h2>Rate Bid</h2>
-      {criteria.map((criterion) => (
-        <div key={criterion.name} className="bep-rating-input">
-          <label>{criterion.name}</label>
-          <input
-            type="number"
-            min="1"
-            max="10"
-            value={selectedBid.ratings?.[criterion.name] || ''}
-            onChange={(e) =>
-              handleRateBid(criterion.name, parseInt(e.target.value, 10))
-            }
-          />
-        </div>
-      ))}
-      <div className="bep-comment-input">
-        <textarea
-          value={comments[selectedBid._id] || ''}
-          onChange={(e) => handleCommentChange(e.target.value)}
-          placeholder="Enter your comments here..."
-        />
-      </div>
-      <button className="bep-button" onClick={submitEvaluation}>Submit Evaluation</button>
-      <button className="bep-button-close" onClick={() => setModalOpen(false)}>Close</button>
-    </div>
-  </div>
-)}
-
-
-      {noBidsModalOpen && (
-        <div className="bep-no-bids-modal">
-          <div className="bep-no-bids-message">
-            <p>{noBidsMessage}</p>
-            <button className="bep-button" onClick={() => setNoBidsModalOpen(false)}>Close</button>
-          </div>
-        </div>
-      )}
+          )}
+        </tbody>
+     
+      </table>
+      <div  className='Only-Viewed-Bids-Would-Be-Included-In-This-Sheet'>
+      <h4>Only Viewed Bids Would Be Included In This Sheet 👉 </h4>
+      <button onClick={handleExportToCSV} className='export-csv-button'>
+  Export to CSV
+</button></div>
     </div>
   );
+
 };
 
 export default BidEvaluationPage;

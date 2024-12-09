@@ -63,7 +63,7 @@ const App = () => {
             <Route path="/register" element={<RegistrationPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/tender/quotation/:tenderId" element={<AllTenderDetails />} />
-            <Route path='/bidder/quotation/:tenderId' element={<AllBidDetails />} />
+            <Route path='/bidder/quotation/:bidId' element={<AllBidDetails />} />
             <Route path='/bidder/quotation/:email'element={<AllBidDetails />} />
 
             <Route
