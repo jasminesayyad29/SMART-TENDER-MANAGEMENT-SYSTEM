@@ -25,7 +25,7 @@ const DeleteTenderPage = () => {
     }
 
     try {
-      await axios.delete('http://localhost:5000/api/tenders', {
+      await axios.delete('https://smart-tender-management-system.onrender.com/api/tenders', {
         data: { id: tenderId }
       });
       Swal.fire({

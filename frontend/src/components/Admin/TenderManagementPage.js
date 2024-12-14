@@ -69,7 +69,7 @@ const TenderManagementPage = () => {
 
   const fetchQuotationDetails = async (bid) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/tenders/id/${bid.tenderId}`);
+      const response = await axios.get(`https://smart-tender-management-system.onrender.com/api/tenders/id/${bid.tenderId}`);
       const data = response.data;
   
       // Fetch BidderPropAmount and include it in the quotationData
@@ -281,7 +281,7 @@ const TenderManagementPage = () => {
           {selectedBid.filePath && (
             <div style={{ display: 'flex', gap: '10px' }}>
               <label><strong>Document:</strong></label>
-              <a href={`http://localhost:5000/${selectedBid.filePath}`} target="_blank" rel="noopener noreferrer">View Document</a>
+              <a href={`https://smart-tender-management-system.onrender.com/${selectedBid.filePath}`} target="_blank" rel="noopener noreferrer">View Document</a>
             </div>
           )}
 

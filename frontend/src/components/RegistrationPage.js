@@ -70,7 +70,7 @@ const RegistrationPage = () => {
     } else {
       try {
         // Example API request
-        await axios.post("http://localhost:5000/api/signup", {
+        await axios.post("https://smart-tender-management-system.onrender.com/api/signup", {
           name, email, password, role,
         });
 

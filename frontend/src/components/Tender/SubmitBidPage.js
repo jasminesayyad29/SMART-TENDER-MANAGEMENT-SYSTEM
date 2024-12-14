@@ -32,7 +32,7 @@ const SubmitBidPage = () => {
 useEffect(() => {
     const fetchTenderDetails = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/tenders/id/${tenderId}`);
+            const response = await axios.get(`https://smart-tender-management-system.onrender.com/api/tenders/id/${tenderId}`);
             const tenderData = response.data;
             setTenderDetails({
                 ...tenderData,
@@ -105,7 +105,7 @@ useEffect(() => {
     
             if (file) formData.append('file', file);
     
-            const response = await axios.post('http://localhost:5000/api/bids', formData, {
+            const response = await axios.post('https://smart-tender-management-system.onrender.com/api/bids', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
     

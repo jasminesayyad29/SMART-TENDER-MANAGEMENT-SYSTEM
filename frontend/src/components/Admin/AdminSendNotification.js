@@ -41,7 +41,7 @@ const AdminSendNotification = () => {
   
       const { name: sendername, email: senderemail } = storedUser;
   
-      await axios.post('http://localhost:5000/api/notifications/send', {
+      await axios.post('https://smart-tender-management-system.onrender.com/api/notifications/send', {
         sendername,
         senderemail,
         message,

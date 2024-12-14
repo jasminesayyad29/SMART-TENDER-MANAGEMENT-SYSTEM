@@ -151,7 +151,7 @@ const ViewTenderPage = () => {
                   <div style={{ display: "flex", gap: "10px" }}>
                     <label><strong>Document:</strong></label>
                     <a
-                      href={`http://localhost:5000/${selectedTender.document}`}
+                      href={`https://smart-tender-management-system.onrender.com/${selectedTender.document}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

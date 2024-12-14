@@ -3,7 +3,7 @@ import io from 'socket.io-client';
 import Chat from './ChatPage';
 import './NotificationsPage.css';
 
-const socket = io.connect("http://localhost:5000");
+const socket = io.connect("https://smart-tender-management-system.onrender.com");
 
 function NotificationsPage() {
   const [username, setUsername] = useState("");

@@ -21,7 +21,7 @@ const BidderNotifications = () => {
         }
 
         const recipientEmail = user.email;
-        const response = await Axios.get('http://localhost:5000/api/notifications/notifications', {
+        const response = await Axios.get('https://smart-tender-management-system.onrender.com/api/notifications/notifications', {
           params: { recipientEmail },
         });
 
@@ -55,7 +55,7 @@ const BidderNotifications = () => {
     if (unreadNotificationIds.length === 0) return;
 
     try {
-      await Axios.put('http://localhost:5000/api/notifications/notifications/mark-read', {
+      await Axios.put('https://smart-tender-management-system.onrender.com/api/notifications/notifications/mark-read', {
         notificationIds: unreadNotificationIds,
       });
       setReadNotifications([...readNotifications, ...unreadNotifications]);
@@ -79,7 +79,7 @@ const BidderNotifications = () => {
       const recipientEmail = user.email;
   
       // Call the DELETE request to remove read notifications
-      await Axios.delete('http://localhost:5000/api/notifications/notifications', {
+      await Axios.delete('https://smart-tender-management-system.onrender.com/api/notifications/notifications', {
         params: { recipientEmail, unread: 'false' }, // 'unread: false' to target read notifications
       });
   
