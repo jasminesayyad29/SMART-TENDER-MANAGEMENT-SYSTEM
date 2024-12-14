@@ -16,7 +16,7 @@ const fetchBidDetails = async () => {
   try {
     if (bidId) {
       // Fetch bid details using bidId
-      const response = await axios.get(`http://localhost:5000/api/bids/id/${bidId}`);
+      const response = await axios.get(`https://smart-tender-management-system.onrender.com/api/bids/id/${bidId}`);
       const bid = response.data;
       if (!bid) {
         setError('Bid not found for the provided Bid ID.');
@@ -49,7 +49,7 @@ const fetchBidDetails = async () => {
  // Fetch quotation details from tender schema
 const fetchQuotationDetails = async (targetTenderId, bidderAmounts, bidExpiryDate) => {
   try {
-    const response = await axios.get(`http://localhost:5000/api/tenders/id/${targetTenderId}`);
+    const response = await axios.get(`https://smart-tender-management-system.onrender.com/api/tenders/id/${targetTenderId}`);
     const data = response.data;
 
     // Add status logic based on bidExpiryDate and today's date
@@ -155,7 +155,7 @@ const fetchQuotationDetails = async (targetTenderId, bidderAmounts, bidExpiryDat
                       <div style={{ display: 'flex', gap: '10px' }}>
                         <label><strong>Document:</strong></label>
                         <a
-                          href={`http://localhost:5000/${bid.filePath}`}
+                          href={`https://smart-tender-management-system.onrender.com/${bid.filePath}`}
                           target="_blank"
                           rel="noopener noreferrer"
                         >

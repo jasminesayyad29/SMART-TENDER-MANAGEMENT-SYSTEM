@@ -122,7 +122,7 @@ const handleSubmit = async (e) => {
   formData.append('Totalquotation', TotalQuotation);
 
   try {
-    const response = await axios.post('http://localhost:5000/api/tenders', formData, {
+    const response = await axios.post('https://smart-tender-management-system.onrender.com/api/tenders', formData, {
       headers: {
         'Content-Type': 'multipart/form-data', // Specify form-data for file uploads
       },
@@ -153,7 +153,7 @@ const handleSubmit = async (e) => {
 
   const sendAcknowledgmentEmail = async () => {
     try {
-      const biddersResponse = await axios.get('http://localhost:5000/api/bidders/emails');
+      const biddersResponse = await axios.get('https://smart-tender-management-system.onrender.com/api/bidders/emails');
       const bidderEmails = biddersResponse.data.emails;
 
       const recipients = Array.from(new Set([email, ...bidderEmails])); // Deduplicate emails

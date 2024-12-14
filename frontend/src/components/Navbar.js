@@ -43,7 +43,7 @@ const Navbar = () => {
         }
 
         const recipientEmail = user.email;
-        const response = await Axios.get('http://localhost:5000/api/notifications/notifications', {
+        const response = await Axios.get('https://smart-tender-management-system.onrender.com/api/notifications/notifications', {
           params: { recipientEmail },
         });
 

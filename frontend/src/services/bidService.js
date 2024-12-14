@@ -1,7 +1,7 @@
 // services/bidService.js
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api/bids/email'; 
+const API_URL = 'https://smart-tender-management-system.onrender.com/api/bids/email'; 
 
 export const fetchbidsbymail = async (email) => {
   try {

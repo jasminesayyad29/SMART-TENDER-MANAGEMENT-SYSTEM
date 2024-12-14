@@ -21,7 +21,7 @@ const ModifyTenderPage = () => {
   // Fetch tender details based on tenderId
   const fetchTenderDetails = async (id) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/tenders/id/${id}`);
+      const response = await axios.get(`https://smart-tender-management-system.onrender.com/api/tenders/id/${id}`);
       const fetchedTender = response.data;
 
       // Convert materials, quantity, and TenderPropAmount to arrays if they are strings
@@ -110,7 +110,7 @@ const handleSubmit = async (e) => {
   }
 
   try {
-    const response = await axios.put(`http://localhost:5000/api/tenders/${urlTenderId}`, formData, {
+    const response = await axios.put(`https://smart-tender-management-system.onrender.com/api/tenders/${urlTenderId}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -156,7 +156,7 @@ const handleSubmit = async (e) => {
     }
 
     try {
-      const response = await axios.get(`http://localhost:5000/api/tenders/id/${tenderId}`);
+      const response = await axios.get(`https://smart-tender-management-system.onrender.com/api/tenders/id/${tenderId}`);
       setQuotationData(response.data); // Store the fetched data
       setErrorMessage('');
       setShowModal(true); // Show modal after data is fetched
@@ -290,7 +290,7 @@ const handleSubmit = async (e) => {
           href={
             tenderDetails.document instanceof File
               ? URL.createObjectURL(tenderDetails.document) // Use temporary object URL for File objects
-              : `http://localhost:5000/${tenderDetails.document}` // Assuming this is the file path in your backend
+              : `https://smart-tender-management-system.onrender.com/${tenderDetails.document}` // Assuming this is the file path in your backend
           }
           target="_blank"
           rel="noopener noreferrer"

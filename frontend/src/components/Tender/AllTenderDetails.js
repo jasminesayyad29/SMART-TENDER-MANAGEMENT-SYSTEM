@@ -18,7 +18,7 @@ const AllTenderDetails = () => {
     }
 
     try {
-      const response = await axios.get(`http://localhost:5000/api/tenders/id/${tenderId}`);
+      const response = await axios.get(`https://smart-tender-management-system.onrender.com/api/tenders/id/${tenderId}`);
       setQuotationData(response.data); // Store the fetched data
       setError('');
     } catch (error) {
@@ -36,7 +36,7 @@ const AllTenderDetails = () => {
       }
   
       try {
-        const response = await axios.get(`http://localhost:5000/api/tenders/id/${tenderId}`);
+        const response = await axios.get(`https://smart-tender-management-system.onrender.com/api/tenders/id/${tenderId}`);
         const data = response.data;
   
         // Check if endDate belongs within today's date and set status dynamically
@@ -139,7 +139,7 @@ const AllTenderDetails = () => {
                 <div style={{ display: "flex", gap: "10px" }}>
                   <label><strong>Document:</strong></label>
                   <a
-                    href={`http://localhost:5000/${quotationData.document}`}
+                    href={`https://smart-tender-management-system.onrender.com/${quotationData.document}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >

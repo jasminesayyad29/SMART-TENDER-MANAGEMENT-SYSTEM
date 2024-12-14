@@ -1,7 +1,7 @@
 // src/services/tenderService.js
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api/tenders'; // Update this URL based on your backend configuration
+const API_URL = 'https://smart-tender-management-system.onrender.com/api/tenders'; // Update this URL based on your backend configuration
 
 // Fetch all tenders
 export const fetchTenders = async () => {
@@ -23,9 +23,9 @@ export const fetchBidsByTenderId = async (tenderId) => {
   try {
     console.log("tenderid4=>" , tenderId) ;
     console.log("type of tenderId:", typeof(tenderId));
-    console.log("url=>" , `http://localhost:5000/api/bids/tender/${tenderId}`) ;
+    console.log("url=>" , `https://smart-tender-management-system.onrender.com/api/bids/tender/${tenderId}`) ;
 
-    const response = await axios.get(`http://localhost:5000/api/bids/tender/${tenderId}`);
+    const response = await axios.get(`https://smart-tender-management-system.onrender.com/api/bids/tender/${tenderId}`);
     console.log("response=>" , response ? response : "nothing");
     return response.data; // Return the list of bids for the specified tender
   } catch (error) {
@@ -50,7 +50,7 @@ export const fetchTendersbymail = async (email) => {
 
 export const fetchScoreByBidId = async (bidId) => {
   try {
-    const response = await axios.get(`http://localhost:5000/api/bids/${bidId}/evaluation`);
+    const response = await axios.get(`https://smart-tender-management-system.onrender.com/api/bids/${bidId}/evaluation`);
     return response.data; // Return the evaluation data
   } catch (error) {
     console.error('Error fetching evaluation:', error);

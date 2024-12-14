@@ -66,7 +66,7 @@ const BidEvaluationPage = () => {
         const bidsWithScores = await Promise.all(
           fetchedBids.map(async (bid) => {
             try {
-              const response = await axios.get(`http://localhost:5000/api/bids/${bid._id}/evaluation`);
+              const response = await axios.get(`https://smart-tender-management-system.onrender.com/api/bids/${bid._id}/evaluation`);
               if (response.data?.comments === "Evaluated") {
                 return { ...bid, evaluationScore: response.data.evaluationScore, evaluationStatus: response.data.evaluationStatus };
               }
@@ -94,7 +94,7 @@ const BidEvaluationPage = () => {
             console.log(`Evaluation Score for Bid ${bid._id}:`, evaluationScore);
 
             // Post the evaluation score to the database
-            await axios.post(`http://localhost:5000/api/bids/${bid._id}/evaluation`, {
+            await axios.post(`https://smart-tender-management-system.onrender.com/api/bids/${bid._id}/evaluation`, {
               evaluationScore: evaluationScore.toFixed(3),  // Format score to 3 decimal places
               comments: 'Evaluated',
             });
@@ -141,14 +141,14 @@ const BidEvaluationPage = () => {
       // Update all bids for the tender to "Rejected"
       await Promise.all(
         bidsForTender.map((bid) =>
-          axios.put(`http://localhost:5000/api/bids/${bid._id}/evaluation`, {
+          axios.put(`https://smart-tender-management-system.onrender.com/api/bids/${bid._id}/evaluation`, {
             evaluationStatus: 'Rejected',
           })
         )
       );
 
       // Update the selected bid to "Approved"
-      await axios.put(`http://localhost:5000/api/bids/${bidId}/evaluation`, {
+      await axios.put(`https://smart-tender-management-system.onrender.com/api/bids/${bidId}/evaluation`, {
         evaluationStatus: 'Approved',
       });
 
