@@ -281,7 +281,7 @@ const BidEvaluationPage = () => {
       // Create a link element to trigger the download
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = 'tender._id.csv';  // Name of the file
+      link.download = 'Tender-Details.csv';  // Name of the file
       link.click(); // Trigger the download
     } catch (error) {
       console.error("Error exporting to CSV:", error);
